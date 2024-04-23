@@ -17,8 +17,8 @@ function Home() {
                 <NavLink to="/login">
                     <button>Login</button>
                 </NavLink>
-                <NavLink to="/register">
-                    <button>Register</button>
+                <NavLink to="/registration">
+                    <button>Registration</button>
                 </NavLink>
                 <NavLink to="/bookmarks">
                     <button>Bookmarks</button>
@@ -46,7 +46,7 @@ function App() {
             <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
+                <Route path="/registration" element={<Register />} />
                 <Route path="/bookmarks" element={<Bookmarks />} />
                 <Route path="/comments" element={<Comments />} />
                 <Route path="/forum" element={<Forum />} />
