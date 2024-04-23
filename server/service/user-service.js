@@ -1,4 +1,4 @@
-const pool = require("../config/dbConfig")
+const pool = require("../index")
 const bcrypt = require("bcrypt")
 const uuid = require("uuid")
 const mailService = require("./mail-service")

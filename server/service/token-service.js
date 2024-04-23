@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken")
-const pool = require("../config/dbConfig")
+const pool = require("../index")
 
 class TokenService {
     async saveToken(userId, refreshToken) {
