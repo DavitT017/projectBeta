@@ -1,6 +1,7 @@
 import { useFormik } from "formik"
 import React from "react"
 import * as yup from "yup"
+import axios from "axios"
 
 const initialValues = {
     emailOrUsername: "",
@@ -37,7 +38,7 @@ const validationSchema = yup.object().shape({
 })
 
 const onSubmit = (values, onSubmitProps) => {
-    console.log("Form values", values)
+    axios.post(process.env.API_URL, values)
     onSubmitProps.resetForm()
 }
 
