@@ -2,6 +2,7 @@ import { useFormik } from "formik"
 import React, { useContext } from "react"
 import * as yup from "yup"
 import { AuthorizationContext } from "../../index"
+import { observer } from "mobx-react-lite"
 
 const initialValues = {
     email: "",
@@ -136,4 +137,4 @@ const Register = () => {
     )
 }
 
-export default Register
+export default observer(Register)

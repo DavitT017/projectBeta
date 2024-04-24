@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useContext, useEffect } from "react"
 import "./App.css"
 import { Routes, Route, NavLink } from "react-router-dom"
 import Login from "./components/Authorization/Login"
@@ -8,6 +8,8 @@ import Comments from "./components/Comments/Comments"
 import Forum from "./components/Forum/Forum"
 import Genres from "./components/Genres/Genres"
 import Rating from "./components/Rating/Rating"
+import { AuthorizationContext } from "./index"
+import { observer } from "mobx-react-lite"
 
 function Home() {
     return (
@@ -41,8 +43,17 @@ function Home() {
 }
 
 function App() {
+    const { store } = useContext(AuthorizationContext)
+    useEffect(() => {
+        if (localStorage.getItem("token")) store.chechAuth()
+    }, [store])
+
     return (
         <div className="App">
+            {store.isAuth
+                ? `User ${store.user.email} is authorized`
+                : "Please authorize"}
+
             <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/login" element={<Login />} />
@@ -53,8 +64,12 @@ function App() {
                 <Route path="/genres" element={<Genres />} />
                 <Route path="/rating" element={<Rating />} />
             </Routes>
+
+            {store.isAuth ? (
+                <button onClick={() => store.logout()}>Log out</button>
+            ) : null}
         </div>
     )
 }
 
-export default App
+export default observer(App)
