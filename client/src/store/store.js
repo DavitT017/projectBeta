@@ -63,9 +63,12 @@ export default class Store {
     async chechAuth() {
         this.setLoading(true)
         try {
-            const response = await axios.get(`${process.env.API_URL}/refresh`, {
-                withCredentials: true,
-            })
+            const response = await axios.get(
+                "http://localhost:5000/api/refresh",
+                {
+                    withCredentials: true,
+                }
+            )
             console.log(response)
             localStorage.setItem("token", response.data.accessToken)
             this.setAuth(true)

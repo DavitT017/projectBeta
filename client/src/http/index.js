@@ -2,7 +2,7 @@ import axios from "axios"
 
 const $api = axios.create({
     withCredentials: true,
-    baseURL: process.env.API_URL,
+    baseURL: "http://localhost:5000/api",
 })
 
 $api.interceptors.request.use((config) => {
@@ -24,7 +24,7 @@ $api.interceptors.response.use(
             originalRequest._isRetry = true
             try {
                 const response = await axios.get(
-                    `${process.env.API_URL}/refresh`,
+                    "http://localhost:5000/api/refresh",
                     {
                         withCredentials: true,
                     }
