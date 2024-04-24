@@ -38,10 +38,10 @@ const validationSchema = yup.object().shape({
 })
 
 const Login = () => {
-    const store = useContext(AuthorizationContext)
+    const { store } = useContext(AuthorizationContext)
 
     const onSubmit = (values, onSubmitProps) => {
-        store.login(values)
+        store.login(values.emailOrUsername, values.password)
         onSubmitProps.resetForm()
     }
 
