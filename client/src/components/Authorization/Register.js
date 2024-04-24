@@ -46,7 +46,7 @@ const Register = () => {
     const { store } = useContext(AuthorizationContext)
 
     const onSubmit = (values, onSubmitProps) => {
-        store.registration(values.email, values.username, values.password)
+        store.registration(values.username, values.email, values.password)
         onSubmitProps.resetForm()
     }
 

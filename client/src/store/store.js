@@ -17,9 +17,9 @@ export default class Store {
         this.user = user
     }
 
-    async login(emailOrUsername, password) {
+    async login(username, email, password) {
         try {
-            const response = await AuthService.login(emailOrUsername, password)
+            const response = await AuthService.login(username, email, password)
             localStorage.setItem("token", response.data.accessToken)
             this.setAuth(true)
             this.setUser(response.data.user)
@@ -28,11 +28,11 @@ export default class Store {
         }
     }
 
-    async registration(email, username, password) {
+    async registration(username, email, password) {
         try {
             const response = await AuthService.registration(
-                email,
                 username,
+                email,
                 password
             )
             localStorage.setItem("token", response.data.accessToken)
