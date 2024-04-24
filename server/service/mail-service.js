@@ -4,7 +4,7 @@ class MailService {
     constructor() {
         this.transporter = nodemailer.createTransport({
             host: process.env.SMTP_HOST,
-            port: 587,
+            port: process.env.SMTP_PORT,
             secure: false,
             auth: {
                 user: process.env.SMTP_USER,
@@ -22,7 +22,7 @@ class MailService {
             html: `
                     <div>
                         <h1>Click Link Down Below To Activate Your Account</h1>
-                        <a href="${link}">${link}</a>
+                        <a href=${link}>${link}</a>
                     </div>
                 `,
         })

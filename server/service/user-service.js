@@ -42,12 +42,8 @@ class UserService {
 
     async activate(activationLink) {
         try {
-            console.log('Activation link:', activationLink); // Add logging
-
             const query = 'SELECT * FROM users WHERE activation_link = $1';
             const result = await pool.query(query, [activationLink]);
-
-            console.log('Query result:', result.rows); // Add logging
 
             if (!result.rows.length) {
                 throw ApiError.BadRequest('Invalid activation link');
