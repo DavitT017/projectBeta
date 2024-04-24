@@ -1,9 +1,11 @@
 import { makeAutoObservable } from "mobx"
 import AuthService from "../services/AuthService"
+import axios from "axios"
 
 export default class Store {
     user = {}
     isAuth = false
+    isLoading = false
 
     constructor() {
         makeAutoObservable(this)
@@ -15,6 +17,10 @@ export default class Store {
 
     setUser(user) {
         this.user = user
+    }
+
+    setLoading(bool) {
+        this.isLoading = bool
     }
 
     async login(username, email, password) {
@@ -51,6 +57,23 @@ export default class Store {
             this.setUser({})
         } catch (e) {
             console.log("Error while logging out", e.response?.data?.message)
+        }
+    }
+
+    async chechAuth() {
+        this.setLoading(true)
+        try {
+            const response = await axios.get(`${process.env.API_URL}/refresh`, {
+                withCredentials: true,
+            })
+            console.log(response)
+            localStorage.setItem("token", response.data.accessToken)
+            this.setAuth(true)
+            this.setUser(response.data.user)
+        } catch (e) {
+            console.log("Error while checking auth", e.response?.data?.message)
+        } finally {
+            this.setLoading(false)
         }
     }
 }
