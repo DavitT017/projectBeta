@@ -41,7 +41,11 @@ const Login = () => {
     const { store } = useContext(AuthorizationContext)
 
     const onSubmit = (values, onSubmitProps) => {
-        store.login(values.emailOrUsername, values.password)
+        store.login(
+            values.emailOrUsername,
+            values.emailOrUsername,
+            values.password
+        )
         onSubmitProps.resetForm()
     }
 
