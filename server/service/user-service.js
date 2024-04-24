@@ -18,6 +18,7 @@ class UserService {
             const hashPassword = await bcrypt.hash(password, 10);
 
             const activationLink = uuidv4(); // Use UUID for activation link
+            
             const insertQuery = `
                 INSERT INTO users (username, email, password_hash, current_roles, avatar_url, is_activated) 
                 VALUES ($1, $2, $3, $4, $5, $6) 
@@ -41,10 +42,14 @@ class UserService {
 
     async activate(activationLink) {
         try {
-            // Find user by activation link
+            console.log('Activation link:', activationLink); // Add logging
+    
             const query = 'SELECT * FROM users WHERE activation_link = $1';
             const result = await pool.query(query, [activationLink]);
-            if (result.rows.length === 0 || !result) {
+    
+            console.log('Query result:', result.rows); // Add logging
+    
+            if (!result.rows.length) {
                 throw ApiError.BadRequest('Invalid activation link');
             }
 
@@ -52,6 +57,8 @@ class UserService {
             const user = result.rows[0];
             const updateQuery = 'UPDATE users SET is_activated = true WHERE user_id = $1';
             await pool.query(updateQuery, [user.user_id]);
+
+            return 'User activated successfully';
         } catch (error) {
             throw new Error(error.message);
         }
@@ -62,7 +69,8 @@ class UserService {
             // Find user by email
             const query = 'SELECT * FROM users WHERE email = $1';
             const result = await pool.query(query, [email]);
-            if (result.rows.length === 0) {
+
+            if (!result.rows.length) {
                 throw ApiError.BadRequest('User with this email does not exist');
             }
 
@@ -119,7 +127,8 @@ class UserService {
             // Find user by id
             const userQuery = 'SELECT * FROM users WHERE user_id = $1';
             const userResult = await pool.query(userQuery, [userData.id]);
-            if (userResult.rows.length === 0) {
+
+            if (!userResult.rows.length) {
                 throw ApiError.UnauthorizedError('User not found');
             }
 
@@ -150,4 +159,5 @@ class UserService {
         }
     }
 }
+
 module.exports = new UserService();

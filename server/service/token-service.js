@@ -2,75 +2,74 @@ const jwt = require("jsonwebtoken")
 const pool = require("../db/db")
 
 class TokenService {
-    async saveToken(userId, refreshToken) {
-        const client = await pool.connect()
-        try {
-            await client.query("BEGIN")
+    generateTokens(payload) {
+        const accessToken = jwt.sign(payload, process.env.JWT_ACCESS_SECRET, { expiresIn: '30s' })
+        const refreshToken = jwt.sign(payload, process.env.JWT_REFRESH_SECRET, { expiresIn: '30d' })
+        return {
+            accessToken,
+            refreshToken
+        }
+    }
 
-            const checkTokenQuery = "SELECT * FROM tokens WHERE user_id = $1"
-            const checkTokenValues = [userId]
-            const { rows } = await client.query(
-                checkTokenQuery,
-                checkTokenValues
-            )
-            if (rows.length > 0) {
-                const updateTokenQuery =
-                    "UPDATE tokens SET refresh_token = $1 WHERE user_id = $2 RETURNING *"
-                const updateTokenValues = [refreshToken, userId]
-                await client.query(updateTokenQuery, updateTokenValues)
-                await client.query("COMMIT")
-                return rows[0]
+    validateAccessToken(token) {
+        try {
+            const userData = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
+            return userData;
+        } catch (e) {
+            return null;
+        }
+    }
+
+    validateRefreshToken(token) {
+        try {
+            const userData = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+            return userData;
+        } catch (e) {
+            return null;
+        }
+    }
+
+    async saveToken(userId, refreshToken) {
+        try {
+            // Check if token exists for the user
+            const tokenQuery = 'SELECT * FROM tokens WHERE user_id = $1';
+            const tokenResult = await pool.query(tokenQuery, [userId]);
+
+            if (tokenResult.rows.length > 0) {
+                // Update existing token
+                const updateQuery = 'UPDATE tokens SET refresh_token = $1 WHERE user_id = $2';
+                await pool.query(updateQuery, [refreshToken, userId]);
+            } else {
+                // Create new token
+                const insertQuery = 'INSERT INTO tokens (user_id, refresh_token) VALUES ($1, $2)';
+                await pool.query(insertQuery, [userId, refreshToken]);
             }
 
-            const insertTokenQuery =
-                "INSERT INTO tokens (user_id, refresh_token) VALUES ($1, $2) RETURNING *"
-            const insertTokenValues = [userId, refreshToken]
-            const newToken = await client.query(
-                insertTokenQuery,
-                insertTokenValues
-            )
-
-            await client.query("COMMIT")
-            return newToken.rows[0]
+            return { user_id: userId, refresh_token: refreshToken };
         } catch (error) {
-            await client.query("ROLLBACK")
-            throw error
-        } finally {
-            client.release()
+            throw new Error(error.message);
         }
     }
 
     async removeToken(refreshToken) {
-        const client = await pool.connect()
         try {
-            await client.query("BEGIN")
-
-            const deleteTokenQuery =
-                "DELETE FROM tokens WHERE refresh_token = $1"
-            const deleteTokenValues = [refreshToken]
-            await client.query(deleteTokenQuery, deleteTokenValues)
-
-            await client.query("COMMIT")
+            const deleteQuery = 'DELETE FROM tokens WHERE refresh_token = $1';
+            await pool.query(deleteQuery, [refreshToken]);
+            return 'Token removed';
         } catch (error) {
-            await client.query("ROLLBACK")
-            throw error
-        } finally {
-            client.release()
+            throw new Error(error.message);
         }
     }
 
     async findToken(refreshToken) {
-        const client = await pool.connect()
         try {
-            const findTokenQuery =
-                "SELECT * FROM tokens WHERE refresh_token = $1"
-            const findTokenValues = [refreshToken]
-            const { rows } = await client.query(findTokenQuery, findTokenValues)
-            return rows[0]
-        } finally {
-            client.release()
+            const query = 'SELECT * FROM tokens WHERE refresh_token = $1';
+            const result = await pool.query(query, [refreshToken]);
+            return result.rows[0];
+        } catch (error) {
+            throw new Error(error.message);
         }
     }
 }
 
-module.exports = new TokenService()
+module.exports = new TokenService();
