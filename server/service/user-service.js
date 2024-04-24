@@ -39,7 +39,7 @@ class UserService {
             throw new Error(error.message);
         }
     }
-
+//Activationlink init
     async activate(activationLink) {
         try {
             const query = 'SELECT * FROM users WHERE activation_link = $1';
@@ -121,7 +121,7 @@ class UserService {
 
             // Find user by id
             const userQuery = 'SELECT * FROM users WHERE user_id = $1';
-            const userResult = await pool.query(userQuery, [userData.id]);
+            const userResult = await pool.query(userQuery, [userData.user_id]);
 
             if (!userResult.rows.length) {
                 throw ApiError.UnauthorizedError('User not found');

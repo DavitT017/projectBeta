@@ -34,9 +34,8 @@ class TokenService {
             // Check if token exists for the user
             const tokenQuery = 'SELECT * FROM tokens WHERE user_id = $1';
             const tokenResult = await pool.query(tokenQuery, [userId]);
-
             if (tokenResult.rows.length > 0) {
-                // Update existing token
+                
                 const updateQuery = 'UPDATE tokens SET refresh_token = $1 WHERE user_id = $2';
                 await pool.query(updateQuery, [refreshToken, userId]);
             } else {
