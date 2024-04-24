@@ -26,7 +26,7 @@ class UserService {
             `;
             const insertResult = await pool.query(insertQuery, [username, email, hashPassword, '', '', false, activationLink]);
 
-          gitvate/${activationLink}`);
+            await mailService.sendActivationMail(email, `${process.env.API_URL}/api/activate/${activationLink}`);
 
             const userDto = new UserDto(insertResult.rows[0]); // Assuming UserDto constructor accepts an object
 
