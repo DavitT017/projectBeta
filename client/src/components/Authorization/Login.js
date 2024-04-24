@@ -1,7 +1,7 @@
 import { useFormik } from "formik"
-import React from "react"
+import React, { useContext } from "react"
 import * as yup from "yup"
-import axios from "axios"
+import { AuthorizationContext } from "../../index"
 
 const initialValues = {
     emailOrUsername: "",
@@ -37,12 +37,14 @@ const validationSchema = yup.object().shape({
         .required("Required"),
 })
 
-const onSubmit = (values, onSubmitProps) => {
-    axios.post(process.env.API_URL + "/login", values)
-    onSubmitProps.resetForm()
-}
-
 const Login = () => {
+    const store = useContext(AuthorizationContext)
+
+    const onSubmit = (values, onSubmitProps) => {
+        store.login(values)
+        onSubmitProps.resetForm()
+    }
+
     const formik = useFormik({
         initialValues,
         validationSchema,

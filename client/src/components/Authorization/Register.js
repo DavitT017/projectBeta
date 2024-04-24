@@ -1,7 +1,7 @@
 import { useFormik } from "formik"
-import React from "react"
+import React, { useContext } from "react"
 import * as yup from "yup"
-import axios from "axios"
+import { AuthorizationContext } from "../../index"
 
 const initialValues = {
     email: "",
@@ -42,12 +42,14 @@ const validationSchema = yup.object().shape({
         .oneOf([yup.ref("password"), null], "Passwords must match"),
 })
 
-const onSubmit = (values, onSubmitProps) => {
-    axios.post(process.env.API_URL + "/registration", values)
-    onSubmitProps.resetForm()
-}
-
 const Register = () => {
+    const store = useContext(AuthorizationContext)
+
+    const onSubmit = (values, onSubmitProps) => {
+        store.registration(values)
+        onSubmitProps.resetForm()
+    }
+
     const formik = useFormik({
         initialValues,
         validationSchema,
