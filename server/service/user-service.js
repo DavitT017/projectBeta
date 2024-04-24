@@ -26,7 +26,7 @@ class UserService {
             `;
             const insertResult = await pool.query(insertQuery, [username, email, hashPassword, '', '', false, activationLink]);
 
-            await mailService.sendActivationMail(email, `${process.env.API_URL}/api/activate/${activationLink}`);
+          gitvate/${activationLink}`);
 
             const userDto = new UserDto(insertResult.rows[0]); // Assuming UserDto constructor accepts an object
 
@@ -42,12 +42,8 @@ class UserService {
 
     async activate(activationLink) {
         try {
-            console.log('Activation link:', activationLink); // Add logging
-
             const query = 'SELECT * FROM users WHERE activation_link = $1';
             const result = await pool.query(query, [activationLink]);
-
-            console.log('Query result:', result.rows); // Add logging
 
             if (!result.rows.length) {
                 throw ApiError.BadRequest('Invalid activation link');
