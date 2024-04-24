@@ -18,13 +18,13 @@ class UserService {
             const hashPassword = await bcrypt.hash(password, 10);
 
             const activationLink = uuidv4(); // Use UUID for activation link
-            
+
             const insertQuery = `
-                INSERT INTO users (username, email, password_hash, current_roles, avatar_url, is_activated) 
-                VALUES ($1, $2, $3, $4, $5, $6) 
+                INSERT INTO users (username, email, password_hash, current_roles, avatar_url, is_activated, activation_link) 
+                VALUES ($1, $2, $3, $4, $5, $6, $7) 
                 RETURNING *
             `;
-            const insertResult = await pool.query(insertQuery, [username, email, hashPassword, '', '', false]);
+            const insertResult = await pool.query(insertQuery, [username, email, hashPassword, '', '', false, activationLink]);
 
             await mailService.sendActivationMail(email, `${process.env.API_URL}/api/activate/${activationLink}`);
 
@@ -43,12 +43,12 @@ class UserService {
     async activate(activationLink) {
         try {
             console.log('Activation link:', activationLink); // Add logging
-    
+
             const query = 'SELECT * FROM users WHERE activation_link = $1';
             const result = await pool.query(query, [activationLink]);
-    
+
             console.log('Query result:', result.rows); // Add logging
-    
+
             if (!result.rows.length) {
                 throw ApiError.BadRequest('Invalid activation link');
             }
@@ -64,14 +64,13 @@ class UserService {
         }
     }
 
-    async login(email, password) {
+    async login(username, email, password) {
         try {
-            // Find user by email
-            const query = 'SELECT * FROM users WHERE email = $1';
-            const result = await pool.query(query, [email]);
+            const query = 'SELECT * FROM users WHERE email = $1 OR username = $2';
+            const result = await pool.query(query, [email, username]);
 
             if (!result.rows.length) {
-                throw ApiError.BadRequest('User with this email does not exist');
+                throw ApiError.BadRequest('User with this email/username does not exist');
             }
 
             const user = result.rows[0];
