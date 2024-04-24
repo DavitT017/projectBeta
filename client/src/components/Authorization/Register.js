@@ -43,7 +43,7 @@ const validationSchema = yup.object().shape({
 })
 
 const onSubmit = (values, onSubmitProps) => {
-    axios.post(process.env.API_URL + "/registration", values)
+    axios.post(process.env.API_URL + "/api/registration", values)
     onSubmitProps.resetForm()
 }
 

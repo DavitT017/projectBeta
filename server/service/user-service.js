@@ -1,124 +1,153 @@
-const pool = require("../index")
-const bcrypt = require("bcrypt")
-const uuid = require("uuid")
-const mailService = require("./mail-service")
-const tokenService = require("./token-service")
-const UserDto = require("../dtos/user-dto")
-const ApiError = require("../exceptions/api-error")
+const bcrypt = require('bcrypt');
+const { v4: uuidv4 } = require('uuid');
+const mailService = require('./mail-service');
+const tokenService = require('./token-service');
+const UserDto = require('../dtos/user-dto');
+const ApiError = require('../exceptions/api-error');
+const pool = require('../db/db');
 
 class UserService {
     async registration(username, email, password) {
         try {
-            const client = await pool.connect()
-            await client.query("BEGIN")
-
-            const checkUserQuery =
-                "SELECT * FROM Users WHERE email = $1 OR username = $2"
-            const checkUserValues = [email, username]
-            const { rows } = await client.query(checkUserQuery, checkUserValues)
-            if (rows.length > 0) {
-                throw ApiError.BadRequest(
-                    `User with ${email} email or ${username} username already exists`
-                )
+            const emailQuery = 'SELECT * FROM users WHERE email = $1';
+            const emailResult = await pool.query(emailQuery, [email]);
+            if (emailResult.rows.length > 0) {
+                throw ApiError.BadRequest(`User with email ${email} already exists`);
             }
 
-            const hashPassword = await bcrypt.hash(password, 10)
-            const user_id = uuid.v4() // or any other method to generate a unique id
+            const hashPassword = await bcrypt.hash(password, 10);
 
-            const createUserQuery =
-                "INSERT INTO Users (user_id, username, email, password_hash) VALUES ($1, $2, $3, $4) RETURNING *"
-            const createUserValues = [user_id, username, email, hashPassword]
-            const newUser = await client.query(
-                createUserQuery,
-                createUserValues
-            )
+            const activationLink = uuidv4(); // Use UUID for activation link
+            const insertQuery = `
+                INSERT INTO users (username, email, password_hash, current_roles, avatar_url, is_activated) 
+                VALUES ($1, $2, $3, $4, $5, $6) 
+                RETURNING *
+            `;
+            const insertResult = await pool.query(insertQuery, [username, email, hashPassword, '', '', false]);
 
-            // Your activation email logic goes here
+            await mailService.sendActivationMail(email, `${process.env.API_URL}/api/activate/${activationLink}`);
 
-            await client.query("COMMIT")
+            const userDto = new UserDto(insertResult.rows[0]); // Assuming UserDto constructor accepts an object
 
-            const userDto = new UserDto(newUser.rows[0]) // id, email, isActivated
-            const tokens = tokenService.generateTokens({ ...userDto })
-            await tokenService.saveToken(userDto.id, tokens.refreshToken)
+            const tokens = tokenService.generateTokens({ ...userDto });
 
-            client.release()
-            return { ...tokens, user: userDto }
+            await tokenService.saveToken(userDto.user_id, tokens.refreshToken);
+
+            return { ...tokens, user: userDto };
         } catch (error) {
-            await client.query("ROLLBACK")
-            throw error
+            throw new Error(error.message);
         }
     }
 
     async activate(activationLink) {
-        const client = await pool.connect()
-        const findUserQuery = "SELECT * FROM users WHERE activation_link = $1"
-        const findUserValues = [activationLink]
-        const { rows } = await client.query(findUserQuery, findUserValues)
-        if (rows.length === 0) {
-            throw ApiError.BadRequest("Incorrect activation key")
+        try {
+            // Find user by activation link
+            const query = 'SELECT * FROM users WHERE activation_link = $1';
+            const result = await pool.query(query, [activationLink]);
+            if (result.rows.length === 0 || !result) {
+                throw ApiError.BadRequest('Invalid activation link');
+            }
+
+            // Update user activation status
+            const user = result.rows[0];
+            const updateQuery = 'UPDATE users SET is_activated = true WHERE user_id = $1';
+            await pool.query(updateQuery, [user.user_id]);
+        } catch (error) {
+            throw new Error(error.message);
         }
-        const updateUserQuery =
-            "UPDATE users SET is_activated = true WHERE id = $1"
-        const updateUserValues = [rows[0].id]
-        await client.query(updateUserQuery, updateUserValues)
-        client.release()
     }
 
     async login(email, password) {
-        const client = await pool.connect()
-        const findUserQuery = "SELECT * FROM users WHERE email = $1"
-        const findUserValues = [email]
-        const { rows } = await client.query(findUserQuery, findUserValues)
-        if (rows.length === 0) {
-            throw ApiError.BadRequest("User with that email doesn't exist")
-        }
-        const user = rows[0]
-        const isPassEquals = await bcrypt.compare(password, user.password)
-        if (!isPassEquals) {
-            throw ApiError.BadRequest("Wrong Password")
-        }
-        const userDto = new UserDto(user)
-        const tokens = tokenService.generateTokens({ ...userDto })
+        try {
+            // Find user by email
+            const query = 'SELECT * FROM users WHERE email = $1';
+            const result = await pool.query(query, [email]);
+            if (result.rows.length === 0) {
+                throw ApiError.BadRequest('User with this email does not exist');
+            }
 
-        await tokenService.saveToken(userDto.id, tokens.refreshToken)
-        client.release()
-        return { ...tokens, user: userDto }
+            const user = result.rows[0];
+
+            // Compare passwords
+            const isPasswordValid = await bcrypt.compare(password, user.password_hash);
+            if (!isPasswordValid) {
+                throw ApiError.BadRequest('Invalid password');
+            }
+
+            // Create UserDto
+            const userDto = new UserDto(user);
+
+            // Generate tokens
+            const tokens = tokenService.generateTokens({ ...userDto });
+
+            // Save refresh token
+            await tokenService.saveToken(userDto.user_id, tokens.refreshToken);
+
+            return { ...tokens, user: userDto };
+        } catch (error) {
+            throw new Error(error.message);
+        }
     }
 
     async logout(refreshToken) {
-        const token = await tokenService.removeToken(refreshToken)
-        return token
+        try {
+            await tokenService.removeToken(refreshToken);
+            return 'Logout successful';
+        } catch (error) {
+            throw new Error(error.message);
+        }
     }
 
     async refresh(refreshToken) {
-        if (!refreshToken) {
-            throw ApiError.UnauthorizedError()
-        }
-        const userData = tokenService.validateRefreshToken(refreshToken)
-        const tokenFromDb = await tokenService.findToken(refreshToken)
-        if (!userData || !tokenFromDb) {
-            throw ApiError.UnauthorizedError()
-        }
-        const client = await pool.connect()
-        const findUserQuery = "SELECT * FROM users WHERE id = $1"
-        const findUserValues = [userData.id]
-        const { rows } = await client.query(findUserQuery, findUserValues)
-        const user = rows[0]
-        const userDto = new UserDto(user)
-        const tokens = tokenService.generateTokens({ ...userDto })
+        try {
+            if (!refreshToken) {
+                throw ApiError.UnauthorizedError('Invalid refresh token');
+            }
 
-        await tokenService.saveToken(userDto.id, tokens.refreshToken)
-        client.release()
-        return { ...tokens, user: userDto }
+            // Validate refresh token
+            const userData = tokenService.validateRefreshToken(refreshToken);
+            if (!userData) {
+                throw ApiError.UnauthorizedError('Invalid refresh token');
+            }
+
+            // Check if token exists in database
+            const tokenFromDb = await tokenService.findToken(refreshToken);
+            if (!tokenFromDb) {
+                throw ApiError.UnauthorizedError('Invalid refresh token');
+            }
+
+            // Find user by id
+            const userQuery = 'SELECT * FROM users WHERE user_id = $1';
+            const userResult = await pool.query(userQuery, [userData.id]);
+            if (userResult.rows.length === 0) {
+                throw ApiError.UnauthorizedError('User not found');
+            }
+
+            const user = userResult.rows[0];
+
+            // Create UserDto
+            const userDto = new UserDto(user);
+
+            // Generate tokens
+            const tokens = tokenService.generateTokens({ ...userDto });
+
+            // Save refresh token
+            await tokenService.saveToken(userDto.user_id, tokens.refreshToken);
+
+            return { ...tokens, user: userDto };
+        } catch (error) {
+            throw new Error(error.message);
+        }
     }
 
     async getAllUsers() {
-        const client = await pool.connect()
-        const getUsersQuery = "SELECT * FROM users"
-        const { rows } = await client.query(getUsersQuery)
-        client.release()
-        return rows
+        try {
+            const query = 'SELECT * FROM users';
+            const result = await pool.query(query);
+            return result.rows;
+        } catch (error) {
+            throw new Error(error.message);
+        }
     }
 }
-
-module.exports = new UserService()
+module.exports = new UserService();
