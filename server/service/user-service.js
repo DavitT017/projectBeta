@@ -5,6 +5,11 @@ const tokenService = require('./token-service');
 const UserDto = require('../dtos/user-dto');
 const ApiError = require('../exceptions/api-error');
 const pool = require('../db/db');
+const Filter = require("bad-words");
+
+const filter = new Filter();
+const words = require("../middlewares/extra-words.json");
+filter.addWords(...words);
 
 class UserService {
     async registration(username, email, password) {
@@ -21,6 +26,10 @@ class UserService {
 
             if (usernameResult.rows.length > 0) {
                 throw ApiError.ConflictError(`User with username ${username} already exists`);
+            }
+
+            if (filter.isProfane(username)) {
+                throw ApiError.BadRequest('Username contains inappropriate language. Please choose another username.');
             }
 
             const hashPassword = await bcrypt.hash(password, 10);
