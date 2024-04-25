@@ -55,7 +55,7 @@ function App() {
             ) : (
                 <p>Please authorize</p>
             )}
-            {!store.user.isActivated ? (
+            {store.isAuth && !store.user.isActivated ? (
                 <p>Click on activation link in email</p>
             ) : null}
 

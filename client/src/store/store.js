@@ -42,6 +42,7 @@ export default class Store {
                 password
             )
             localStorage.setItem("token", response.data.accessToken)
+            this.setAuth(true)
             this.setUser(response.data.user)
         } catch (e) {
             console.log("Error while registration", e.response?.data?.message)
