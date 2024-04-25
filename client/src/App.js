@@ -50,12 +50,14 @@ function App() {
 
     return (
         <div className="App">
-            {store.isAuth
-                ? `User ${store.user.email} is authorized`
-                : "Please authorize"}
-            {store.user.isActivated
-                ? "Click on activation link in email"
-                : null}
+            {store.isAuth ? (
+                <p>{`User ${store.user.email} is authorized`}</p>
+            ) : (
+                <p>Please authorize</p>
+            )}
+            {!store.user.isActivated ? (
+                <p>Click on activation link in email</p>
+            ) : null}
 
             <Routes>
                 <Route path="/" element={<Home />} />
