@@ -53,6 +53,9 @@ function App() {
             {store.isAuth
                 ? `User ${store.user.email} is authorized`
                 : "Please authorize"}
+            {store.user.isActivated
+                ? "Click on activation link in email"
+                : null}
 
             <Routes>
                 <Route path="/" element={<Home />} />
