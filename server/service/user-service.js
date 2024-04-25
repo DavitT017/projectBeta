@@ -10,9 +10,17 @@ class UserService {
     async registration(username, email, password) {
         try {
             const emailQuery = 'SELECT * FROM users WHERE email = $1';
+            const usernameQuery = 'SELECT * FROM users WHERE username = $1';
+
             const emailResult = await pool.query(emailQuery, [email]);
+            const usernameResult = await pool.query(usernameQuery, [username]);
+
             if (emailResult.rows.length > 0) {
-                throw ApiError.BadRequest(`User with email ${email} already exists`);
+                throw ApiError.ConflictError(`User with email ${email} already exists`);
+            }
+
+            if (usernameResult.rows.length > 0) {
+                throw ApiError.ConflictError(`User with username ${username} already exists`);
             }
 
             const hashPassword = await bcrypt.hash(password, 10);
@@ -39,7 +47,7 @@ class UserService {
             throw new Error(error.message);
         }
     }
-//Activationlink init
+    //Activationlink init
     async activate(activationLink) {
         try {
             const query = 'SELECT * FROM users WHERE activation_link = $1';

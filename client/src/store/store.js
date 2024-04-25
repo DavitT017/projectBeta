@@ -1,6 +1,6 @@
+import axios from "axios"
 import { makeAutoObservable } from "mobx"
 import AuthService from "../services/AuthService"
-import axios from "axios"
 
 export default class Store {
     user = {}
@@ -45,7 +45,11 @@ export default class Store {
             this.setAuth(true)
             this.setUser(response.data.user)
         } catch (e) {
-            console.log("Error while registration", e.response?.data?.message)
+            if (e.response?.status === 500) {
+                console.log("Username or email already exists");
+            } else {
+                console.log("Error while registration", e.response?.data?.message)
+            }
         }
     }
 
