@@ -53,6 +53,7 @@ class UserService {
 
             return { ...tokens, user: { ...userDto, isActivated: false } };
         } catch (error) {
+            UserDto.errors = error.message;
             throw new Error(error.message);
         }
     }

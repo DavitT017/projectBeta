@@ -3,6 +3,7 @@ module.exports = class UserDto {
     email
     user_id
     isActivated
+    errors
 
     constructor(model) {
         this.username = model.username
