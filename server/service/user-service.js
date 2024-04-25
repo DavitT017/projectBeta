@@ -34,7 +34,7 @@ class UserService {
 
             await tokenService.saveToken(userDto.user_id, tokens.refreshToken);
 
-            return { ...tokens, user: userDto };
+            return { ...tokens, user: { ...userDto, isActivated: false } };
         } catch (error) {
             throw new Error(error.message);
         }
@@ -86,7 +86,7 @@ class UserService {
             // Save refresh token
             await tokenService.saveToken(userDto.user_id, tokens.refreshToken);
 
-            return { ...tokens, user: userDto };
+            return { ...tokens, user: { ...userDto, isActivated: user.is_activated } };
         } catch (error) {
             throw new Error(error.message);
         }
@@ -138,7 +138,7 @@ class UserService {
             // Save refresh token
             await tokenService.saveToken(userDto.user_id, tokens.refreshToken);
 
-            return { ...tokens, user: userDto };
+            return { ...tokens, user: { ...userDto, isActivated: user.is_activated } };
         } catch (error) {
             throw new Error(error.message);
         }
