@@ -143,16 +143,6 @@ class UserService {
             throw new Error(error.message);
         }
     }
-
-    async getAllUsers() {
-        try {
-            const query = 'SELECT * FROM users';
-            const result = await pool.query(query);
-            return result.rows;
-        } catch (error) {
-            throw new Error(error.message);
-        }
-    }
 }
 
 module.exports = new UserService();
