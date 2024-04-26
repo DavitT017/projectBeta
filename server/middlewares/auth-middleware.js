@@ -19,7 +19,7 @@ module.exports = function (req, res, next) {
         }
 
         if (!userData.isActivated) {
-            return next(ApiError.ForbiddenError("User is not activated"));
+            return next(ApiError.ForbiddenError("User is not activated"))
         }
 
         req.user = userData
