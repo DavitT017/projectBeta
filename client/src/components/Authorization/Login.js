@@ -42,19 +42,12 @@ const Login = () => {
     const { store } = useContext(AuthorizationContext)
 
     const onSubmit = async (values, onSubmitProps) => {
-        try {
-            await store.login(
-                values.emailOrUsername,
-                values.emailOrUsername,
-                values.password
-            )
-            onSubmitProps.resetForm()
-        } catch (error) {
-            console.error(
-                "Error while loggin in:",
-                error.response?.data?.message
-            )
-        }
+        await store.login(
+            values.emailOrUsername,
+            values.emailOrUsername,
+            values.password
+        )
+        onSubmitProps.resetForm()
     }
 
     const formik = useFormik({

@@ -47,19 +47,8 @@ const Register = () => {
     const { store } = useContext(AuthorizationContext)
 
     const onSubmit = async (values, onSubmitProps) => {
-        try {
-            await store.registration(
-                values.username,
-                values.email,
-                values.password
-            )
-            onSubmitProps.resetForm()
-        } catch (e) {
-            console.log(
-                "Error while registering:",
-                e.response?.data?.message
-            )
-        }
+        await store.registration(values.username, values.email, values.password)
+        onSubmitProps.resetForm()
     }
 
     const formik = useFormik({
