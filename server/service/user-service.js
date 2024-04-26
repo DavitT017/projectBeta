@@ -21,18 +21,21 @@ class UserService {
             const usernameResult = await pool.query(usernameQuery, [username])
 
             if (emailResult.rows.length > 0) {
+                // 409 code
                 throw ApiError.ConflictError(
                     `User with email ${email} already exists`
                 )
             }
 
             if (usernameResult.rows.length > 0) {
+                //409 code
                 throw ApiError.ConflictError(
                     `User with username ${username} already exists`
                 )
             }
 
             if (filter.isProfane(username)) {
+                // 400 code
                 throw ApiError.BadRequest(
                     "Username contains inappropriate language. Please choose another username."
                 )

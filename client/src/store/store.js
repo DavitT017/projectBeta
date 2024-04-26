@@ -30,10 +30,7 @@ export default class Store {
             this.setAuth(true)
             this.setUser(response.data.user)
         } catch (e) {
-            console.log("Error while logging in", e.response?.data?.message)
-            if (e.response?.status === 400) {
-                console.log("Invalid email/username or password.")
-            }
+            console.log("Error while login:", e.response?.data?.message)
         }
     }
 
@@ -48,19 +45,7 @@ export default class Store {
             this.setAuth(true)
             this.setUser(response.data.user)
         } catch (e) {
-            if (e.response?.status === 400) {
-                console.log("Validation error:", e.response?.data?.message)
-                e.response?.data?.errors?.forEach((error) => {
-                    console.log(error.msg)
-                })
-            } else if (e.response?.status === 409) {
-                console.log("Username or email already exists.")
-            } else {
-                console.log(
-                    "Error while registration:",
-                    e.response?.data?.message
-                )
-            }
+            console.log("Error while registration:", e.response?.data?.message)
         }
     }
 

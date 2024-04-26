@@ -46,9 +46,20 @@ const validationSchema = yup.object().shape({
 const Register = () => {
     const { store } = useContext(AuthorizationContext)
 
-    const onSubmit = (values, onSubmitProps) => {
-        store.registration(values.username, values.email, values.password)
-        onSubmitProps.resetForm()
+    const onSubmit = async (values, onSubmitProps) => {
+        try {
+            await store.registration(
+                values.username,
+                values.email,
+                values.password
+            )
+            onSubmitProps.resetForm()
+        } catch (e) {
+            console.log(
+                "Error while registering:",
+                e.response?.data?.message
+            )
+        }
     }
 
     const formik = useFormik({
