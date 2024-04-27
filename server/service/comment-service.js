@@ -3,16 +3,16 @@ const pool = require("../db/db")
 
 async function getComments(req, res) {
 	try {
-		const postQuery = `
-        SELECT body, title FROM "post"
-        WHERE id = $1;
+		const query = `
+        SELECT description, title FROM "comics"
+        WHERE comic_id = $1;
       `
-		const postResult = await pool.query(postQuery, [req.params.id])
+		const postResult = await pool.query(query, [req.params.id])
 		const post = postResult.rows[0]
 
 		const commentsQuery = `
-        SELECT id, message, parentId, createdAt FROM "comment"
-        WHERE comic_Id = $1
+        SELECT comment_id, messages, parent_id, createdAt FROM "comics_comment"
+        WHERE comic_id = $1
         ORDER BY createdAt DESC;
       `
 		const commentsResult = await pool.query(commentsQuery, [req.params.id])
@@ -33,7 +33,8 @@ async function createComment(req, res) {
 	}
 
 	try {
-		const postId = req.params.id
+		const comic_id = req.params.id
+		const parent_id = req.params.parent_id
 		const query = `
       INSERT INTO "comics_comment" ("messages", "user_id", "comic_id", "parent_id")
       VALUES ($1, $2, $3, $4)

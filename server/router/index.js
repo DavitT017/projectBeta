@@ -28,6 +28,6 @@ router.post(
 	"/:comic_id/comments/:comment_id/toggleLike",
 	commentController.toggleLike
 )
-router.get("/:id",commentController.getComments)
+router.get("/:id/comments",commentController.getComments)
 
 module.exports = router
