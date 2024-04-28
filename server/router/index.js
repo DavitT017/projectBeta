@@ -20,20 +20,20 @@ router.get("/comics", commentController.getAllComics);
 router.get("/comics/:id", commentController.getComic);
 
 // Comments
-router.post("comics/:comic_id/comments", commentController.createComment)
+router.post("/comics/:comic_id/comments", commentController.createComment)
 
 router.put(
-    "comics/:comic_id/comments/:comment_id",
+    "/comics/:comic_id/comments/:comment_id",
     commentController.updateComment
 )
 router.delete(
-    "comics/:comic_id/comments/:comment_id",
+    "/comics/:comic_id/comments/:comment_id",
     commentController.deleteComment
 )
 router.post(
-    "comics/:comic_id/comments/:comment_id/toggleLike",
+    "/comics/:comic_id/comments/:comment_id/toggleLike",
     commentController.toggleLike
 )
-router.get("comics/:comic_id/comments", commentController.getComments)
+router.get("/comics/:comic_id/comments", commentController.getComments)
 
 module.exports = router

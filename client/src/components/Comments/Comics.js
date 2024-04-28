@@ -22,7 +22,7 @@ function Comics() {
     return (
         <React.Fragment>
             <h1>{comics.title}</h1>
-            <article>{comics.body}</article>
+            <article>{comics.description}</article>
             <h3>Comments</h3>
             <div>
                 <CommentForm
