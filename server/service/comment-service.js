@@ -43,7 +43,7 @@ async function getComments(req, res) {
             WHERE comic_id = $1
             ORDER BY createdAt DESC;
         `
-		const commentsResult = await pool.query(commentsQuery, [req.params.id])
+		const commentsResult = await pool.query(commentsQuery, [req.params.comic_id])
 		const comments = commentsResult.rows
 
 		res.json({ post, comments })
@@ -61,7 +61,7 @@ async function createComment(req, res) {
 	}
 
 	try {
-		const comic_id = req.params.id
+		const comic_id = req.params.comic_id
 		const parent_id = req.params.parent_id
 		const query = `
             INSERT INTO "comics_comment" ("messages", "user_id", "comic_id", "parent_id")
