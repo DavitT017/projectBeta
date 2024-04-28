@@ -5,10 +5,10 @@ const router = new Router()
 const { body } = require("express-validator")
 
 router.post(
-	"/registration",
-	body("email").isEmail(),
-	body("password").isLength({ min: 6, max: 20 }),
-	userController.registration
+    "/registration",
+    body("email").isEmail(),
+    body("password").isLength({ min: 6, max: 20 }),
+    userController.registration
 )
 router.post("/login", userController.login)
 router.post("/logout", userController.logout)
@@ -24,18 +24,16 @@ router.post("/comics/:comic_id/comments", commentController.createComment)
 router.post("/comics/:comic_id/comments", commentController.createComment)
 
 router.put(
-	"/comics/:comic_id/comments/:comment_id",
-	commentController.updateComment
     "/comics/:comic_id/comments/:comment_id",
     commentController.updateComment
 )
 router.delete(
-	"/comics/:comic_id/comments/:comment_id",
-	commentController.deleteComment
+    "/comics/:comic_id/comments/:comment_id",
+    commentController.deleteComment
 )
 router.post(
-	"/comics/:comic_id/comments/:comment_id/toggleLike",
-	commentController.toggleLike
+    "/comics/:comic_id/comments/:comment_id/toggleLike",
+    commentController.toggleLike
 )
 router.get("/comics/:comic_id/comments", commentController.getComments)
 
