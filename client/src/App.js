@@ -10,6 +10,8 @@ import Genres from "./components/Genres/Genres"
 import Rating from "./components/Rating/Rating"
 import { AuthorizationContext } from "./index"
 import { observer } from "mobx-react-lite"
+import { ComicsContextProvider } from "./context/ComicsContext"
+import Comics from "./components/Comments/Comics"
 
 function Home() {
     return (
@@ -68,6 +70,14 @@ function App() {
                 <Route path="/forum" element={<Forum />} />
                 <Route path="/genres" element={<Genres />} />
                 <Route path="/rating" element={<Rating />} />
+                <Route
+                    path="/comics/:id"
+                    element={
+                        <ComicsContextProvider>
+                            <Comics />
+                        </ComicsContextProvider>
+                    }
+                />
             </Routes>
 
             {store.isAuth ? (

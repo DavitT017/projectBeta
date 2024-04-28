@@ -1,17 +1,16 @@
 # dependencies
-**node_modules
+/node_modules
 /.pnp
 .pnp.js
 
 # testing
-**coverage
+/coverage
 
 # production
-**build
-
-.env
+/build
 
 # misc
+.env
 .DS_Store
 .env.local
 .env.development.local
