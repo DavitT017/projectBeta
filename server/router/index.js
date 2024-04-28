@@ -15,8 +15,11 @@ router.post("/logout", userController.logout)
 router.get("/activate/:link", userController.activate)
 router.get("/refresh", userController.refresh)
 
-// Comments
+//Comics
+router.get("/comics", commentController.getAllComics);
+router.get("/comics/:id", commentController.getComic);
 
+// Comments
 router.post("comics/:comic_id/comments", commentController.createComment)
 
 router.put(
