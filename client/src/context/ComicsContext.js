@@ -21,7 +21,7 @@ export function ComicsContextProvider({ children }) {
         loading,
         error,
         value: comics,
-    } = useAsync(() => getAComics(comic_id), [comic_id])
+    } = useAsync(() => getAComics(comic_id))
     const [comments, setComments] = useState([])
 
     const commentsByParentId = useMemo(() => {

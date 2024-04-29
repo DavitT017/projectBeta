@@ -5,6 +5,12 @@ export async function makeRequest(url, options) {
         const res = await axios.get(url, options)
         return res.data
     } catch (error) {
-        return await Promise.reject(error.response?.data?.message)
+        if (error.response && error.response.status === 404) {
+            console.error("Endpoint not found:", url)
+            return await Promise.reject("Endpoint not found")
+        } else {
+            console.error("Request Error:", error)
+            return await Promise.reject(error.response?.data?.message)
+        }
     }
 }

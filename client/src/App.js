@@ -66,18 +66,19 @@ function App() {
                 <Route path="/login" element={<Login />} />
                 <Route path="/registration" element={<Register />} />
                 <Route path="/bookmarks" element={<Bookmarks />} />
-                <Route path="/comments" element={<Comments />} />
                 <Route path="/forum" element={<Forum />} />
                 <Route path="/genres" element={<Genres />} />
                 <Route path="/rating" element={<Rating />} />
                 <Route
-                    path="/comics/:id"
+                    path="/comics/:comic_id"
                     element={
                         <ComicsContextProvider>
                             <Comics />
                         </ComicsContextProvider>
                     }
-                />
+                >
+                    <Route path="comments" element={<Comments />} />
+                </Route>
             </Routes>
 
             {store.isAuth ? (
