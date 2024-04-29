@@ -27,8 +27,8 @@ function Home() {
                 <NavLink to="/bookmarks">
                     <button>Bookmarks</button>
                 </NavLink>
-                <NavLink to="/comments">
-                    <button>Comments</button>
+                <NavLink to="/comics">
+                    <button>Comics</button>
                 </NavLink>
                 <NavLink to="/forum">
                     <button>Forum</button>
@@ -77,7 +77,7 @@ function App() {
                         </ComicsContextProvider>
                     }
                 >
-                    <Route path="comments" element={<Comments />} />
+                    <Route path="comments/:comment_id" element={<Comments />} />
                 </Route>
             </Routes>
 

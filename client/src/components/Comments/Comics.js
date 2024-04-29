@@ -1,4 +1,5 @@
 import React from "react"
+import { useParams } from "react-router-dom"
 import { useComics } from "../../context/ComicsContext"
 import { useAsyncFn } from "../../hooks/useAsync"
 import { createComment } from "../../services/comments"
@@ -6,6 +7,7 @@ import CommentForm from "./CommentForm"
 import CommentList from "./CommentList"
 
 function Comics() {
+    const { comic_id } = useParams()
     const { comics, rootComments, createLocalComment } = useComics()
     const {
         loading,
@@ -14,9 +16,7 @@ function Comics() {
     } = useAsyncFn(createComment)
 
     function onCommentCreate(message) {
-        return createCommentFn({ comic_id: comics.id, message }).then(
-            createLocalComment
-        )
+        return createCommentFn({ comic_id, message }).then(createLocalComment)
     }
 
     return (

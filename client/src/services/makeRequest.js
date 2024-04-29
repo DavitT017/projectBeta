@@ -1,8 +1,8 @@
-import axios from "axios"
+import $api from "../http/index"
 
 export async function makeRequest(url, options) {
     try {
-        const res = await axios.get(url, options)
+        const res = await $api.get(url, options)
         return res.data
     } catch (error) {
         if (error.response && error.response.status === 404) {
