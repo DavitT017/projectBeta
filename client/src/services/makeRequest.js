@@ -1,16 +1,14 @@
-import $api from "../http/index"
+import axios from "axios"
 
-export async function makeRequest(url, options) {
-    try {
-        const res = await $api.get(url, options)
-        return res.data
-    } catch (error) {
-        if (error.response && error.response.status === 404) {
-            console.error("Endpoint not found:", url)
-            return await Promise.reject("Endpoint not found")
-        } else {
-            console.error("Request Error:", error)
-            return await Promise.reject(error.response?.data?.message)
-        }
-    }
+const api = axios.create({
+    baseURL: process.env.REACT_APP_SERVER_URL,
+    withCredentials: true,
+})
+
+export function makeRequest(url, options) {
+    return api(url, options)
+        .then((res) => res.data)
+        .catch((error) =>
+            Promise.reject(error?.response?.data?.message ?? "Error")
+        )
 }

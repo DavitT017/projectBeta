@@ -1,6 +1,6 @@
 import { makeRequest } from "./makeRequest"
 
-export function getAllComics() {
+export function getComics() {
     return makeRequest("/comics")
 }
 

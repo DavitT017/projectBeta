@@ -4,13 +4,13 @@ import { Routes, Route, NavLink } from "react-router-dom"
 import Login from "./components/Authorization/Login"
 import Register from "./components/Authorization/Register"
 import Bookmarks from "./components/Bookmarks/Bookmarks"
-import Comments from "./components/Comments/Comments"
 import Forum from "./components/Forum/Forum"
 import Genres from "./components/Genres/Genres"
 import Rating from "./components/Rating/Rating"
 import { AuthorizationContext } from "./index"
 import { observer } from "mobx-react-lite"
-import { ComicsContextProvider } from "./context/ComicsContext"
+import { ComicsList } from "./components/Comments/ComicsList"
+import ComicsContextProvider from "./context/ComicsContext"
 import Comics from "./components/Comments/Comics"
 
 function Home() {
@@ -69,6 +69,7 @@ function App() {
                 <Route path="/forum" element={<Forum />} />
                 <Route path="/genres" element={<Genres />} />
                 <Route path="/rating" element={<Rating />} />
+                <Route path="/comics" element={<ComicsList />} />
                 <Route
                     path="/comics/:comic_id"
                     element={
@@ -76,9 +77,7 @@ function App() {
                             <Comics />
                         </ComicsContextProvider>
                     }
-                >
-                    <Route path="comments/:comment_id" element={<Comments />} />
-                </Route>
+                />
             </Routes>
 
             {store.isAuth ? (
