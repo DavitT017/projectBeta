@@ -17,7 +17,7 @@ router.get("/refresh", userController.refresh)
 
 //Comics
 router.get("/comics", commentController.getAllComics)
-router.get("/comics/:id", commentController.getComic)
+router.get("/comics/:comic_id", commentController.getComic)
 
 // Comments
 router.post("/comics/:comic_id/comments", commentController.createComment)

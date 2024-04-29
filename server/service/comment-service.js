@@ -20,7 +20,7 @@ async function getComic(req, res) {
 		SELECT comic_id, title, description, cover_image_url, date, current_status, created_at FROM "comics"
             WHERE comic_id = $1;
         `
-		const result = await pool.query(query, [req.params.id])
+		const result = await pool.query(query, [req.params.comic_id])
 		const comic = result.rows[0]
 		res.json(comic)
 	} catch (error) {
