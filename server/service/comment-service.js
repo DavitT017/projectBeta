@@ -22,21 +22,6 @@ async function getComic(req, res) {
         `
 		const result = await pool.query(query, [req.params.comic_id])
 		const comic = result.rows[0]
-		res.json(comic)
-	} catch (error) {
-		console.error("Error fetching comic:", error)
-		res.status(500).json({ error: "Internal server error" })
-	}
-}
-
-async function getComments(req, res) {
-	try {
-		const query = `
-            SELECT description, title FROM "comics"
-            WHERE comic_id = $1;
-        `
-		const postResult = await pool.query(query, [req.params.id])
-		const post = postResult.rows[0]
 
 		const commentsQuery = `
             SELECT comment_id, messages, parent_id, createdAt FROM "comics_comment"
@@ -45,13 +30,15 @@ async function getComments(req, res) {
         `
 		const commentsResult = await pool.query(commentsQuery, [req.params.comic_id])
 		const comments = commentsResult.rows
+		comic.comments = comments; // Add comments array to comic object
 
-		res.json({ post, comments })
+        res.json(comic); 
 	} catch (error) {
-		console.error("Error fetching comments:", error)
+		console.error("Error fetching comic:", error)
 		res.status(500).json({ error: "Internal server error" })
 	}
 }
+
 
 // Function to create a comment
 async function createComment(req, res) {
@@ -167,7 +154,6 @@ async function toggleLike(req, res) {
 module.exports = {
 	getAllComics,
 	getComic,
-	getComments,
 	createComment,
 	updateComment,
 	deleteComment,

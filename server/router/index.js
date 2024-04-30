@@ -35,6 +35,5 @@ router.post(
     "/comics/:comic_id/comments/:comment_id/toggleLike",
     commentController.toggleLike
 )
-router.get("/comics/:comic_id/comments", commentController.getComments)
 
 module.exports = router
