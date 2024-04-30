@@ -12,7 +12,6 @@ function Comics() {
         error,
         execute: createCommentFn,
     } = useAsyncFn(createComment)
-
     function onCommentCreate(message) {
         return createCommentFn({ comic_id: comic.comic_id, message }).then(
             (comment) => {

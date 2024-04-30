@@ -1,5 +1,6 @@
 const pool = require("../db/db")
 
+
 //All comics
 async function getAllComics(req, res) {
 	try {
@@ -24,21 +25,33 @@ async function getComic(req, res) {
 		const comic = result.rows[0]
 
 		const commentsQuery = `
-            SELECT comment_id, messages, parent_id, createdAt FROM "comics_comment"
-            WHERE comic_id = $1
-            ORDER BY createdAt DESC;
+		SELECT comment_id, messages, parent_id, createdAt FROM "comics_comment"
+		WHERE comic_id = $1
+		ORDER BY createdAt DESC;
         `
 		const commentsResult = await pool.query(commentsQuery, [req.params.comic_id])
 		const comments = commentsResult.rows
-		comic.comments = comments; // Add comments array to comic object
+		
+		 // Fetch user details for each comment
+		 for (let comment of comments) {
+            const userQuery = `
+                SELECT user_id, username, avatar_url
+                FROM "users"
+                WHERE user_id = $1;
+            `;
+            const userResult = await pool.query(userQuery, [req.cookies.userId]);
+            const user = userResult.rows[0];
+            comment.user = user; // Add user details to comment object
+        }
 
-        res.json(comic); 
+        comic.comments = comments; // Add comments array to comic object
+
+        res.json(comic); // Send the comic object with comments and user details as the response
 	} catch (error) {
 		console.error("Error fetching comic:", error)
 		res.status(500).json({ error: "Internal server error" })
 	}
 }
-
 
 // Function to create a comment
 async function createComment(req, res) {
@@ -46,7 +59,6 @@ async function createComment(req, res) {
 	if (!message) {
 		return res.status(400).json({ error: "Message is required" })
 	}
-
 	try {
 		const comic_id = req.params.comic_id
 		const parent_id = req.params.parent_id
@@ -55,7 +67,7 @@ async function createComment(req, res) {
             VALUES ($1, $2, $3, $4)
             RETURNING *;
         `
-		const values = [message, req.cookies.user_id, comic_id, parent_id]
+		const values = [message, req.cookies.userId, comic_id, parent_id]
 		const result = await pool.query(query, values)
 		const comment = result.rows[0]
 		res.json(comment)

@@ -23,6 +23,7 @@ module.exports = function (req, res, next) {
         }
 
         req.user = userData
+        req.user = userData.user_id
         next()
     } catch (e) {
         return next(ApiError.UnauthorizedError())
