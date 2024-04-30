@@ -7,7 +7,7 @@ const dateFormatter = new Intl.DateTimeFormat(undefined, {
     timeStyle: "short",
 })
 
-function Comment({ comment_id, messages, createdat }) {
+function Comment({ comment_id, user, messages, createdat }) {
     const { getReplies } = useComics()
 
     const childComments = getReplies(comment_id)
@@ -26,6 +26,7 @@ function Comment({ comment_id, messages, createdat }) {
                 }}
             >
                 <div>
+                    <span>{user.username} | </span>
                     <span>{dateFormatter.format(Date.parse(createdat))}</span>
                     <hr />
                 </div>
