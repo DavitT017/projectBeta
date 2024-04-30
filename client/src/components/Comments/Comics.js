@@ -1,8 +1,25 @@
 import React from "react"
 import { useComics } from "../../context/ComicsContext"
+import CommentsList from "./CommentsList"
+import CommentForm from "./CommentForm"
+import { useAsyncFn } from "../../hooks/useAsync"
+import { createComment } from "../../services/comments"
 
 function Comics() {
-    const { comic } = useComics()
+    const { comic, rootComments } = useComics()
+    const {
+        loading,
+        error,
+        execute: createCommentFn,
+    } = useAsyncFn(createComment)
+
+    function onCommentCreate(message) {
+        return createCommentFn({ comic_id: comic.comic_id, message }).then(
+            (comment) => {
+                console.log(comment)
+            }
+        )
+    }
 
     return (
         <div>
@@ -11,6 +28,18 @@ function Comics() {
             <p>{comic.description}</p>
             <div>
                 <h3>Comments</h3>
+                <div>
+                    <CommentForm
+                        loading={loading}
+                        error={error}
+                        handleSubmit={onCommentCreate}
+                    />
+                    {rootComments && rootComments.length > 0 ? (
+                        <div>
+                            <CommentsList comments={rootComments} />
+                        </div>
+                    ) : null}
+                </div>
             </div>
         </div>
     )

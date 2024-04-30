@@ -13,7 +13,7 @@ export const ComicsList = () => {
     return comics.map((comic) => (
         <h1 key={comic.comic_id}>
             <NavLink
-                style={{ textDecoration: "none", color: "white" }}
+                style={{ textDecoration: "none", color: "red" }}
                 to={`/comics/${comic.comic_id}`}
             >
                 {comic.title}

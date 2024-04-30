@@ -1,4 +1,4 @@
-import React, { useContext, createContext } from "react"
+import React, { useContext, createContext, useMemo } from "react"
 import { useAsync } from "../hooks/useAsync"
 import { getAComics } from "../services/comics"
 import { useParams } from "react-router-dom"
@@ -18,8 +18,30 @@ function ComicsContextProvider({ children }) {
         value: comic,
     } = useAsync(() => getAComics(comic_id), [comic_id])
 
+    const commentsByParentId = useMemo(() => {
+        if (!comic?.comments) return []
+        const group = {}
+
+        comic?.comments.forEach((comment) => {
+            group[comment?.parent_id] ||= []
+            group[comment?.parent_id].push(comment)
+        })
+
+        return group
+    }, [comic?.comments])
+
+    function getReplies(parent_id) {
+        return commentsByParentId[parent_id]
+    }
+
     return (
-        <ComicsContext.Provider value={{ comic: { comic_id, ...comic } }}>
+        <ComicsContext.Provider
+            value={{
+                comic: { comic_id, ...comic },
+                getReplies,
+                rootComments: commentsByParentId[null],
+            }}
+        >
             {loading ? (
                 <h1>Loading...</h1>
             ) : error ? (
