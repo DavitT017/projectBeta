@@ -1,6 +1,7 @@
 import React, { useState } from "react"
 import { useComics } from "../../context/ComicsContext"
 import CommentsList from "./CommentsList"
+import CommentForm from "./CommentForm"
 
 const dateFormatter = new Intl.DateTimeFormat(undefined, {
     dateStyle: "medium",
@@ -12,6 +13,7 @@ function Comment({ comment_id, user, messages, createdat }) {
 
     const childComments = getReplies(comment_id)
     const [areChildrenHidden, setAreChildrenHidden] = useState(false)
+    const [isReplying, setIsReplying] = useState(false)
 
     return (
         <React.Fragment>
@@ -26,18 +28,28 @@ function Comment({ comment_id, user, messages, createdat }) {
                 }}
             >
                 <div>
-                    <span>{user.username} | </span>
+                    <span>{user?.username} | </span>
                     <span>{dateFormatter.format(Date.parse(createdat))}</span>
                     <hr />
                 </div>
                 <div style={{ padding: "10px" }}>{messages}</div>
                 <div>
                     <button>Likes: 0</button>
-                    <button>Reply</button>
+                    <button
+                        onClick={() => setIsReplying((prevState) => !prevState)}
+                        aria-label={isReplying ? "Cancel Reply" : "Reply"}
+                    >
+                        Reply
+                    </button>
                     <button>Edit</button>
                     <button>Delete</button>
                 </div>
             </div>
+            {isReplying ? (
+                <div>
+                    <CommentForm autoFocus />
+                </div>
+            ) : null}
             {childComments && childComments?.length > 0 ? (
                 <React.Fragment>
                     <div
@@ -51,7 +63,7 @@ function Comment({ comment_id, user, messages, createdat }) {
                             onClick={() => setAreChildrenHidden(true)}
                         />
                         <div className="nested-comments">
-                            <CommentsList commets={childComments} />
+                            <CommentsList comments={childComments} />
                         </div>
                     </div>
                     <button

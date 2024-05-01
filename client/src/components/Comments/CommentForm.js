@@ -35,15 +35,19 @@ function CommentForm({ loading, error, handleSubmit, autoFocus = false }) {
                     autoFocus={autoFocus}
                     {...formik.getFieldProps("comment")}
                     name="comment"
+                    style={{ resize: "vertical", width: "300px" }}
                 />
                 {formik.touched.comment && formik.errors.comment ? (
                     <div>{formik.errors.comment}</div>
+                ) : error ? (
+                    error
                 ) : null}
+                <br />
                 <button
                     type="submit"
                     disabled={!formik.isValid && formik.isSubmitting}
                 >
-                    Post
+                    {loading ? "Loading..." : "Post"}
                 </button>
             </form>
         </div>

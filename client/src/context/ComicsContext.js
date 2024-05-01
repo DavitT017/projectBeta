@@ -1,4 +1,10 @@
-import React, { useContext, createContext, useMemo } from "react"
+import React, {
+    useContext,
+    createContext,
+    useMemo,
+    useState,
+    useEffect,
+} from "react"
 import { useAsync } from "../hooks/useAsync"
 import { getAComics } from "../services/comics"
 import { useParams } from "react-router-dom"
@@ -18,20 +24,31 @@ function ComicsContextProvider({ children }) {
         value: comic,
     } = useAsync(() => getAComics(comic_id), [comic_id])
 
+    const [comments, setComments] = useState([])
+
     const commentsByParentId = useMemo(() => {
-        if (!comic?.comments) return []
+        if (!comments) return []
         const group = {}
 
-        comic?.comments.forEach((comment) => {
+        comments.forEach((comment) => {
             group[comment?.parent_id] ||= []
             group[comment?.parent_id].push(comment)
         })
 
         return group
+    }, [comments])
+
+    useEffect(() => {
+        if (!comic?.comments) return
+        setComments(comic?.comments)
     }, [comic?.comments])
 
     function getReplies(parent_id) {
         return commentsByParentId[parent_id]
+    }
+
+    function createLocalComment(comment) {
+        setComments((prevComments) => [comment, ...prevComments])
     }
 
     return (
@@ -39,6 +56,7 @@ function ComicsContextProvider({ children }) {
             value={{
                 comic: { comic_id, ...comic },
                 getReplies,
+                createLocalComment,
                 rootComments: commentsByParentId[null],
             }}
         >

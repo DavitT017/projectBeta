@@ -6,17 +6,16 @@ import { useAsyncFn } from "../../hooks/useAsync"
 import { createComment } from "../../services/comments"
 
 function Comics() {
-    const { comic, rootComments } = useComics()
+    const { comic, rootComments, createLocalComment } = useComics()
     const {
         loading,
         error,
         execute: createCommentFn,
     } = useAsyncFn(createComment)
+
     function onCommentCreate(message) {
         return createCommentFn({ comic_id: comic.comic_id, message }).then(
-            (comment) => {
-                console.log(comment)
-            }
+            createLocalComment
         )
     }
 

@@ -9,7 +9,95 @@ body {
     -moz-osx-font-smoothing: grayscale;
 }
 
-code {
-    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-        monospace;
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+.container {
+    max-width: 1200px;
+    width: calc(100vw - 4rem);
+    margin: 2rem auto;
+}
+
+button {
+    font-size: inherit;
+    font-family: inherit;
+}
+
+.message-input:focus {
+    border-color: hsl(235, 100%, 67%);
+    outline: none;
+}
+
+.nested-comments {
+    padding-left: .5rem;
+    flex-grow: 1;
+}
+
+.nested-comments-stack {
+    display: flex;
+}
+
+.collapse-line {
+    border: none;
+    background: none;
+    padding: 0;
+    width: 15px;
+    margin-top: .5rem;
+    position: relative;
+    cursor: pointer;
+    outline: none;
+    transform: translateX(-50%);
+}
+
+.collapse-line:hover::before,
+.collapse-line:focus-visible::before {
+    background-color: hsl(235, 100%, 60%);
+}
+
+.collapse-line::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 1px;
+    background-color: hsl(235, 50%, 74%);
+    transition: background-color 100ms ease-in-out;
+}
+
+.hide {
+    display: none;
+}
+
+.btn {
+    --hue: 235;
+    --color: hsl(var(--hue), 100%, 67%);
+    padding: .5em 1em;
+    background: var(--color);
+    border: none;
+    color: white;
+    border-radius: .5em;
+    font-size: .75em;
+    cursor: pointer;
+}
+
+.btn:hover,
+.btn:focus-visible {
+    --color: hsl(var(--hue), 100%, 74%);
+}
+
+.btn.icon-btn {
+    background: none;
+    color: var(--color);
+    padding: .25em;
+    display: flex;
+    align-items: center;
+}
+
+.btn[disabled] {
+    --color: hsl(var(--hue), 20%, 74%);
 }
