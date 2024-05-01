@@ -11,7 +11,8 @@ async function getAllComics(req, res) {
 		res.json(result.rows)
 	} catch (error) {
 		console.error("Error fetching comics:", error)
-		res.status(500).json({ error: "Internal server error" })
+		res.status(500).send({ error: "Internal server error" })
+		
 	}
 }
 
@@ -49,7 +50,7 @@ async function getComic(req, res) {
         res.json(comic); // Send the comic object with comments and user details as the response
 	} catch (error) {
 		console.error("Error fetching comic:", error)
-		res.status(500).json({ error: "Internal server error" })
+		res.status(500).send({ error: "Internal server error" })
 	}
 }
 
@@ -57,7 +58,7 @@ async function getComic(req, res) {
 async function createComment(req, res) {
 	const { message } = req.body
 	if (!message) {
-		return res.status(400).json({ error: "Message is required" })
+		return res.status(400).send({ error: "Message is required" })
 	}
 	try {
 		const comic_id = req.params.comic_id
@@ -73,7 +74,7 @@ async function createComment(req, res) {
 		res.json(comment)
 	} catch (error) {
 		console.error("Error creating comment:", error)
-		res.status(500).json({ error: "Internal server error" })
+		res.status(500).send({ error: "Internal server error" })
 	}
 }
 
@@ -81,7 +82,7 @@ async function createComment(req, res) {
 async function updateComment(req, res) {
 	const { message } = req.body
 	if (!message) {
-		return res.status(400).json({ error: "Message is required" })
+		return res.status(400).send({ error: "Message is required" })
 	}
 
 	try {
@@ -90,7 +91,7 @@ async function updateComment(req, res) {
 			[req.params.comment_id]
 		)
 		if (user_id !== req.cookies.user_id) {
-			return res.status(401).json({
+			return res.status(401).send({
 				error: "You do not have permission to edit this comment",
 			})
 		}
@@ -107,7 +108,7 @@ async function updateComment(req, res) {
 		res.json(updatedComment)
 	} catch (error) {
 		console.error("Error updating comment:", error)
-		res.status(500).json({ error: "Internal server error" })
+		res.status(500).send({ error: "Internal server error" })
 	}
 }
 
@@ -119,7 +120,7 @@ async function deleteComment(req, res) {
 			[req.params.comment_id]
 		)
 		if (user_id !== req.cookies.user_id) {
-			return res.status(401).json({
+			return res.status(401).send({
 				error: "You do not have permission to delete this comment",
 			})
 		}
@@ -130,7 +131,7 @@ async function deleteComment(req, res) {
 		res.status(204).send()
 	} catch (error) {
 		console.error("Error deleting comment:", error)
-		res.status(500).json({ error: "Internal server error" })
+		res.status(500).send({ error: "Internal server error" })
 	}
 }
 
@@ -159,7 +160,7 @@ async function toggleLike(req, res) {
 		}
 	} catch (error) {
 		console.error("Error toggling like:", error)
-		res.status(500).json({ error: "Internal server error" })
+		res.status(500).send({ error: "Internal server error" })
 	}
 }
 
