@@ -21,7 +21,6 @@ router.get("/comics/:comic_id", commentController.getComic)
 
 // Comments
 router.post("/comics/:comic_id/comments", commentController.createComment)
-router.post("/comics/:comic_id/comments", commentController.createComment)
 
 router.put(
     "/comics/:comic_id/comments/:comment_id",

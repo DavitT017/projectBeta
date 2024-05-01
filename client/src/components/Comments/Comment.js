@@ -2,6 +2,8 @@ import React, { useState } from "react"
 import { useComics } from "../../context/ComicsContext"
 import CommentsList from "./CommentsList"
 import CommentForm from "./CommentForm"
+import { useAsyncFn } from "../../hooks/useAsync"
+import { createComment } from "../../services/comments"
 
 const dateFormatter = new Intl.DateTimeFormat(undefined, {
     dateStyle: "medium",
@@ -9,11 +11,26 @@ const dateFormatter = new Intl.DateTimeFormat(undefined, {
 })
 
 function Comment({ comment_id, user, messages, createdat }) {
-    const { getReplies } = useComics()
+    const { comic, getReplies, createLocalComment } = useComics()
 
     const childComments = getReplies(comment_id)
     const [areChildrenHidden, setAreChildrenHidden] = useState(false)
     const [isReplying, setIsReplying] = useState(false)
+
+    const createCommentFn = useAsyncFn(createComment)
+
+    const onCommentReply = (message, parent_id) => {
+        return createCommentFn
+            .execute({
+                comic_id: comic?.comic_id,
+                message,
+                parent_id,
+            })
+            .then((comment) => {
+                setIsReplying(false)
+                createLocalComment(comment)
+            })
+    }
 
     return (
         <React.Fragment>
@@ -37,9 +54,8 @@ function Comment({ comment_id, user, messages, createdat }) {
                     <button>Likes: 0</button>
                     <button
                         onClick={() => setIsReplying((prevState) => !prevState)}
-                        aria-label={isReplying ? "Cancel Reply" : "Reply"}
                     >
-                        Reply
+                        {isReplying ? "Cancel Reply" : "Reply"}
                     </button>
                     <button>Edit</button>
                     <button>Delete</button>
@@ -47,7 +63,14 @@ function Comment({ comment_id, user, messages, createdat }) {
             </div>
             {isReplying ? (
                 <div>
-                    <CommentForm autoFocus />
+                    <CommentForm
+                        autoFocus
+                        loading={createCommentFn.loading}
+                        error={createCommentFn.error}
+                        handleSubmit={(message) =>
+                            onCommentReply(message, comment_id)
+                        }
+                    />
                 </div>
             ) : null}
             {childComments && childComments?.length > 0 ? (
@@ -59,7 +82,7 @@ function Comment({ comment_id, user, messages, createdat }) {
                     >
                         <button
                             className="collapse-line"
-                            aria-label="Hide Replies"
+                            aria-label="Hide Replies" // need to go over again
                             onClick={() => setAreChildrenHidden(true)}
                         />
                         <div className="nested-comments">
