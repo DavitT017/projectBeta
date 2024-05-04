@@ -39,7 +39,7 @@ function ComicsContextProvider({ children }) {
     }, [comments])
 
     useEffect(() => {
-        if (!comic?.comments) return
+        if (comic?.comments == null) return
         setComments(comic?.comments)
     }, [comic?.comments])
 
@@ -51,12 +51,56 @@ function ComicsContextProvider({ children }) {
         setComments((prevComments) => [comment, ...prevComments])
     }
 
+    function updateLocalComment(comment_id, message) {
+        setComments((prevComments) => {
+            const updatedComments = prevComments.map((comment) => {
+                if (comment.comment_id === comment_id)
+                    return { ...comment, messages: message }
+                else return comment
+            })
+            return updatedComments
+        })
+    }
+
+    function deleteLocalComment(comment_id) {
+        setComments((prevComments) => {
+            return prevComments.filter(
+                (comment) => comment.comment_id !== comment_id
+            )
+        })
+    }
+
+    function toggleLikeLocal(comment_id, addLike) {
+        setComments((prevComments) => {
+            return prevComments.map((comment) => {
+                if (comment_id === comment.comment_id) {
+                    if (addLike) {
+                        return {
+                            ...comment,
+                            likeCount: comment.likeCount + 1,
+                            likedByMe: true,
+                        }
+                    } else {
+                        return {
+                            ...comment,
+                            likeCount: comment.likeCount - 1,
+                            likedByMe: false,
+                        }
+                    }
+                } else return comment
+            })
+        })
+    }
+
     return (
         <ComicsContext.Provider
             value={{
                 comic: { comic_id, ...comic },
                 getReplies,
                 createLocalComment,
+                updateLocalComment,
+                deleteLocalComment,
+                toggleLikeLocal,
                 rootComments: commentsByParentId[null],
             }}
         >

@@ -15,18 +15,20 @@ async function getAllComics(req, res) {
 }
 
 async function getComic(req, res) {
-	try {
-		const query = `
-		SELECT comic_id, title, description, cover_image_url, date, current_status, created_at FROM "comics"
+    try {
+        const query = `
+            SELECT comic_id, title, description, cover_image_url, date, current_status, created_at
+            FROM "comics"
             WHERE comic_id = $1;
         `
 		const result = await pool.query(query, [req.params.comic_id])
 		const comic = result.rows[0]
 
-		const commentsQuery = `
-		SELECT comment_id, messages, parent_id, createdAt FROM "comics_comment"
-		WHERE comic_id = $1
-		ORDER BY createdAt DESC;
+        const commentsQuery = `
+            SELECT comment_id, messages, parent_id, user_id, createdat
+            FROM "comics_comment"
+            WHERE comic_id = $1
+            ORDER BY createdat DESC;
         `
 		const commentsResult = await pool.query(commentsQuery, [
 			req.params.comic_id,
@@ -40,10 +42,10 @@ async function getComic(req, res) {
                 FROM "users"
                 WHERE user_id = $1;
             `
-			const userResult = await pool.query(userQuery, [req.cookies.userId])
-			const user = userResult.rows[0]
-			comment.user = user // Add user details to comment object
-		}
+            const userResult = await pool.query(userQuery, [comment.user_id])
+            const user = userResult.rows[0]
+            comment.user = user // Add user details to comment object
+        }
 
 		comic.comments = comments // Add comments array to comic object
 

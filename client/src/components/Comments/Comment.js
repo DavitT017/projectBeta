@@ -3,21 +3,45 @@ import { useComics } from "../../context/ComicsContext"
 import CommentsList from "./CommentsList"
 import CommentForm from "./CommentForm"
 import { useAsyncFn } from "../../hooks/useAsync"
-import { createComment } from "../../services/comments"
+import {
+    createComment,
+    deleteComment,
+    updateComment,
+    toggleLike,
+} from "../../services/comments"
 
 const dateFormatter = new Intl.DateTimeFormat(undefined, {
     dateStyle: "medium",
     timeStyle: "short",
 })
 
-function Comment({ comment_id, user, messages, createdat }) {
-    const { comic, getReplies, createLocalComment } = useComics()
+function Comment({
+    comment_id,
+    user,
+    messages,
+    createdat,
+    likeCount,
+    likedByMe,
+}) {
+    const {
+        comic,
+        getReplies,
+        createLocalComment,
+        updateLocalComment,
+        deleteLocalComment,
+        toggleLikeLocal,
+    } = useComics()
 
     const childComments = getReplies(comment_id)
+
     const [areChildrenHidden, setAreChildrenHidden] = useState(false)
     const [isReplying, setIsReplying] = useState(false)
+    const [isEditing, setIsEditing] = useState(false)
 
     const createCommentFn = useAsyncFn(createComment)
+    const updateCommentFn = useAsyncFn(updateComment)
+    const deleteCommentFn = useAsyncFn(deleteComment)
+    const toggleLikeLocalFn = useAsyncFn(toggleLike)
 
     const onCommentReply = (message, parent_id) => {
         return createCommentFn
@@ -30,6 +54,37 @@ function Comment({ comment_id, user, messages, createdat }) {
                 setIsReplying(false)
                 createLocalComment(comment)
             })
+    }
+
+    const onCommentUpdate = (message) => {
+        return updateCommentFn
+            .execute({
+                comic_id: comic?.comic_id,
+                message,
+                comment_id,
+            })
+            .then((comment) => {
+                setIsEditing(false)
+                updateLocalComment(comment_id, comment.messages)
+            })
+    }
+
+    const onCommentDelete = () => {
+        return deleteCommentFn
+            .execute({
+                comic_id: comic?.comic_id,
+                comment_id,
+            })
+            .then(() => deleteLocalComment(comment_id))
+    }
+
+    const onCommentLike = () => {
+        return toggleLikeLocalFn
+            .execute({
+                comment_id,
+                comic_id: comic?.comic_id,
+            })
+            .then(({ addLike }) => toggleLikeLocal(comment_id, addLike))
     }
 
     return (
@@ -49,17 +104,43 @@ function Comment({ comment_id, user, messages, createdat }) {
                     <span>{dateFormatter.format(Date.parse(createdat))}</span>
                     <hr />
                 </div>
-                <div style={{ padding: "10px" }}>{messages}</div>
+                {isEditing ? (
+                    <CommentForm
+                        autoFocus
+                        handleSubmit={(message) => onCommentUpdate(message)}
+                        loading={updateCommentFn.loading}
+                        error={updateCommentFn.error}
+                    />
+                ) : (
+                    <div style={{ padding: "10px" }}>{messages}</div>
+                )}
                 <div>
-                    <button>Likes: 0</button>
+                    <button
+                        onClick={() => onCommentLike()}
+                        disabled={toggleLikeLocalFn.loading}
+                    >
+                        {likedByMe ? "Unlike" : `Likes: ${likeCount}`}
+                    </button>
                     <button
                         onClick={() => setIsReplying((prevState) => !prevState)}
                     >
                         {isReplying ? "Cancel Reply" : "Reply"}
                     </button>
-                    <button>Edit</button>
-                    <button>Delete</button>
+                    <button
+                        onClick={() => setIsEditing((prevState) => !prevState)}
+                    >
+                        {isEditing ? "Cancel Edit" : "Edit"}
+                    </button>
+                    <button
+                        disabled={deleteCommentFn.loading}
+                        onClick={() => onCommentDelete()}
+                    >
+                        {deleteCommentFn.loading ? "Deleting..." : "Delete"}
+                    </button>
                 </div>
+                {deleteCommentFn.error ? (
+                    <div>{deleteCommentFn.error}</div>
+                ) : null}
             </div>
             {isReplying ? (
                 <div>
