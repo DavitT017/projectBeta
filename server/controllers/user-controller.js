@@ -17,8 +17,8 @@ class UserController {
 				email,
 				password
 			)
-			res.cookie("accessToken", userData.accessToken, {
-				maxAge: 2 * 60 * 60 * 1000,
+			res.cookie("refreshToken", userData.refreshToken, {
+				maxAge: 30 * 24 * 60 * 60 * 1000,
 				httpOnly: true,
 			})
 
@@ -33,8 +33,8 @@ class UserController {
 		try {
 			const { username, email, password } = req.body
 			const userData = await userService.login(username, email, password)
-			res.cookie("accessToken", userData.accessToken, {
-				maxAge: 2 * 60 * 60 * 1000,
+			res.cookie("refreshToken", userData.refreshToken, {
+				maxAge: 30 * 24 * 60 * 60 * 1000,
 				httpOnly: true,
 			})
 
@@ -72,8 +72,8 @@ class UserController {
 		try {
 			const { refreshToken } = req.cookies
 			const userData = await userService.refresh(refreshToken)
-			res.cookie("accessToken", userData.accessToken, {
-				maxAge: 2 * 60 * 60 * 1000,
+			res.cookie("refreshToken", userData.refreshToken, {
+				maxAge: 30 * 24 * 60 * 60 * 1000,
 				httpOnly: true,
 			})
 			res.cookie("userId", userData.user.user_id)
