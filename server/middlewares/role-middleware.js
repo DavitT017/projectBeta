@@ -7,11 +7,11 @@ module.exports = function (roles) {
         }
 
         try {
-            const {accessToken} = req.cookies
-            if (!accessToken) {
+            const {refreshToken} = req.cookies
+            if (!refreshToken) {
                 return res.status(403).json({message: "Not Authorized"})
             }
-            const {current_roles} = jwt.verify(accessToken, process.env.JWT_ACCESS_SECRET)
+            const {current_roles} = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET)
             let hasRole = false
             roles.forEach(roles => {
                 if (current_roles == roles) {
