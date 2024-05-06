@@ -50,6 +50,17 @@ async function getComic(req, res) {
                 [comment.comment_id]
             )
             comment.like_count = parseInt(likeCountResult.rows[0].count)
+
+            // Check if the current user has liked this comment
+            const likeQuery = `
+            SELECT c.user_id, l.comment_id
+            FROM likes l
+            INNER JOIN comics_comment c ON l.comment_id = c.comment_id
+            WHERE l.user_id = $2
+            AND l.comment_id = $1;
+            `
+            const likeResult = await pool.query(likeQuery, [comment.comment_id, req.cookies.userId])
+            comment.liked_by_me = likeResult.rows.length > 0
         }
 
         comic.comments = comments
