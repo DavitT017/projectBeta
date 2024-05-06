@@ -42,4 +42,17 @@ router.delete(
 	commentController.deleteComment
 )
 
+router.post(
+    "/comics/:comic_id/comments/:comment_id/like",
+    roleMiddleware(['USER', 'ADMIN', 'MODERATOR']),
+    commentController.likeComment
+);
+
+router.post(
+    "/comics/:comic_id/comments/:comment_id/unlike",
+    roleMiddleware(['USER', 'ADMIN', 'MODERATOR']),
+    commentController.unlikeComment
+);
+
+
 module.exports = router
