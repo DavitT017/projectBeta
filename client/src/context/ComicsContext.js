@@ -70,28 +70,6 @@ function ComicsContextProvider({ children }) {
         })
     }
 
-    function toggleLikeLocal(comment_id, addLike) {
-        setComments((prevComments) => {
-            return prevComments.map((comment) => {
-                if (comment_id === comment.comment_id) {
-                    if (addLike) {
-                        return {
-                            ...comment,
-                            likeCount: comment.likeCount + 1,
-                            likedByMe: true,
-                        }
-                    } else {
-                        return {
-                            ...comment,
-                            likeCount: comment.likeCount - 1,
-                            likedByMe: false,
-                        }
-                    }
-                } else return comment
-            })
-        })
-    }
-
     return (
         <ComicsContext.Provider
             value={{
@@ -100,7 +78,6 @@ function ComicsContextProvider({ children }) {
                 createLocalComment,
                 updateLocalComment,
                 deleteLocalComment,
-                toggleLikeLocal,
                 rootComments: commentsByParentId[null],
             }}
         >

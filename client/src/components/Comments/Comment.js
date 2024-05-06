@@ -7,7 +7,6 @@ import {
     createComment,
     deleteComment,
     updateComment,
-    toggleLike,
 } from "../../services/comments"
 
 const dateFormatter = new Intl.DateTimeFormat(undefined, {
@@ -20,7 +19,7 @@ function Comment({
     user,
     messages,
     createdat,
-    likeCount,
+    like_count,
     likedByMe,
 }) {
     const {
@@ -29,8 +28,8 @@ function Comment({
         createLocalComment,
         updateLocalComment,
         deleteLocalComment,
-        toggleLikeLocal,
     } = useComics()
+    console.log(comic)
 
     const childComments = getReplies(comment_id)
 
@@ -41,7 +40,6 @@ function Comment({
     const createCommentFn = useAsyncFn(createComment)
     const updateCommentFn = useAsyncFn(updateComment)
     const deleteCommentFn = useAsyncFn(deleteComment)
-    const toggleLikeLocalFn = useAsyncFn(toggleLike)
 
     const onCommentReply = (message, parent_id) => {
         return createCommentFn
@@ -78,15 +76,6 @@ function Comment({
             .then(() => deleteLocalComment(comment_id))
     }
 
-    const onCommentLike = () => {
-        return toggleLikeLocalFn
-            .execute({
-                comment_id,
-                comic_id: comic?.comic_id,
-            })
-            .then(({ addLike }) => toggleLikeLocal(comment_id, addLike))
-    }
-
     return (
         <React.Fragment>
             <div
@@ -115,12 +104,6 @@ function Comment({
                     <div style={{ padding: "10px" }}>{messages}</div>
                 )}
                 <div>
-                    <button
-                        onClick={() => onCommentLike()}
-                        disabled={toggleLikeLocalFn.loading}
-                    >
-                        {likedByMe ? "Unlike" : `Likes: ${likeCount}`}
-                    </button>
                     <button
                         onClick={() => setIsReplying((prevState) => !prevState)}
                     >

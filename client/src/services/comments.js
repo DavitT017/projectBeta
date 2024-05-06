@@ -19,9 +19,3 @@ export function deleteComment({ comic_id, comment_id }) {
         method: "DELETE",
     })
 }
-
-export function toggleLike({ comic_id, comment_id }) {
-    return makeRequest(`comics/${comic_id}/comments/${comment_id}/toggleLike`, {
-        method: "POST",
-    })
-}
