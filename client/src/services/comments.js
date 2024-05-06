@@ -19,3 +19,15 @@ export function deleteComment({ comic_id, comment_id }) {
         method: "DELETE",
     })
 }
+
+export function likeComment({ comic_id, comment_id }) {
+    return makeRequest(`comics/${comic_id}/comments/${comment_id}/like`, {
+        method: "POST",
+    })
+}
+
+export function unlikeComment({ comic_id, comment_id }) {
+    return makeRequest(`comics/${comic_id}/comments/${comment_id}/unlike`, {
+        method: "POST",
+    })
+}

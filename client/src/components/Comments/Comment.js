@@ -7,6 +7,8 @@ import {
     createComment,
     deleteComment,
     updateComment,
+    likeComment,
+    unlikeComment,
 } from "../../services/comments"
 
 const dateFormatter = new Intl.DateTimeFormat(undefined, {
@@ -14,14 +16,7 @@ const dateFormatter = new Intl.DateTimeFormat(undefined, {
     timeStyle: "short",
 })
 
-function Comment({
-    comment_id,
-    user,
-    messages,
-    createdat,
-    like_count,
-    likedByMe,
-}) {
+function Comment({ comment_id, user, messages, createdat, like_count }) {
     const {
         comic,
         getReplies,
@@ -40,6 +35,8 @@ function Comment({
     const createCommentFn = useAsyncFn(createComment)
     const updateCommentFn = useAsyncFn(updateComment)
     const deleteCommentFn = useAsyncFn(deleteComment)
+    const likeCommentFn = useAsyncFn(likeComment)
+    const unlikeCommentFn = useAsyncFn(unlikeComment)
 
     const onCommentReply = (message, parent_id) => {
         return createCommentFn
@@ -76,6 +73,34 @@ function Comment({
             .then(() => deleteLocalComment(comment_id))
     }
 
+    const onLikeComment = () => {
+        return likeCommentFn
+            .execute({
+                comic_id: comic?.comic_id,
+                comment_id,
+            })
+            .then(() => {
+                likeCommentFn.value && likeCommentFn.value.error
+                    ? console.log(likeCommentFn.value.error)
+                    : likeCommentFn.value &&
+                      createLocalComment(likeCommentFn.value)
+            })
+    }
+
+    const onUnlikeComment = () => {
+        return unlikeCommentFn
+            .execute({
+                comic_id: comic?.comic_id,
+                comment_id,
+            })
+            .then(() => {
+                unlikeCommentFn.value && unlikeCommentFn.value.error
+                    ? console.log(unlikeCommentFn.value.error)
+                    : unlikeCommentFn.value &&
+                      deleteLocalComment(unlikeCommentFn.value.comment_id)
+            })
+    }
+
     return (
         <React.Fragment>
             <div
@@ -104,6 +129,12 @@ function Comment({
                     <div style={{ padding: "10px" }}>{messages}</div>
                 )}
                 <div>
+                    {like_count > 0 ? (
+                        <button onClick={onUnlikeComment}>Unlike</button>
+                    ) : (
+                        <button onClick={onLikeComment}>Like</button>
+                    )}
+                    <p>{like_count}</p>
                     <button
                         onClick={() => setIsReplying((prevState) => !prevState)}
                     >
@@ -146,7 +177,7 @@ function Comment({
                     >
                         <button
                             className="collapse-line"
-                            aria-label="Hide Replies" // need to go over again
+                            aria-label="Hide Replies"
                             onClick={() => setAreChildrenHidden(true)}
                         />
                         <div className="nested-comments">

@@ -34,7 +34,6 @@ async function getComic(req, res) {
         ])
         const comments = commentsResult.rows
 
-        // Fetch user details for each comment
         for (let comment of comments) {
             const userQuery = `
                 SELECT user_id, username, avatar_url
@@ -44,9 +43,14 @@ async function getComic(req, res) {
             const userResult = await pool.query(userQuery, [comment.user_id])
             const user = userResult.rows[0]
             comment.user = user
+
+            const likeCountResult = await pool.query(
+                'SELECT COUNT(*) FROM "likes" WHERE comment_id = $1',
+                [comment.comment_id]
+            )
+            comment.like_count = parseInt(likeCountResult.rows[0].count)
         }
 
-        // Add comments array to comic object
         comic.comments = comments
 
         res.json(comic)
@@ -153,55 +157,65 @@ async function deleteComment(req, res) {
 
 async function likeComment(req, res) {
     try {
-        const { comment_id } = req.params;
-        const { userId } = req.cookies;
+        const { comment_id } = req.params
+        const { userId } = req.cookies
 
         // Check if the user has already liked the comment
         const existingLike = await pool.query(
             'SELECT 1 FROM "likes" WHERE comment_id = $1 AND user_id = $2',
             [comment_id, userId]
-        );
+        )
 
         if (existingLike.rows.length > 0) {
-            return res.status(400).json({ error: "You have already liked this comment" });
+            return res
+                .status(400)
+                .json({ error: "You have already liked this comment" })
         }
 
         // Insert a new like
-        await pool.query('INSERT INTO "likes" (user_id, comment_id) VALUES ($1, $2)', [userId, comment_id]);
+        await pool.query(
+            'INSERT INTO "likes" (user_id, comment_id) VALUES ($1, $2)',
+            [userId, comment_id]
+        )
         // Update like_count in comments table
-        await updateLikeCount(comment_id);
+        await updateLikeCount(comment_id)
 
-        res.status(200).send();
+        res.status(200).send()
     } catch (error) {
-        console.error("Error liking comment:", error);
-        res.status(500).send({ error: "Internal server error" });
+        console.error("Error liking comment:", error)
+        res.status(500).send({ error: "Internal server error" })
     }
 }
 
 async function unlikeComment(req, res) {
     try {
-        const { comment_id } = req.params;
-        const { userId } = req.cookies;
+        const { comment_id } = req.params
+        const { userId } = req.cookies
 
         // Check if the user has liked the comment
         const existingLike = await pool.query(
             'SELECT 1 FROM "likes" WHERE comment_id = $1 AND user_id = $2',
             [comment_id, userId]
-        );
+        )
 
         if (existingLike.rows.length === 0) {
-            return res.status(400).json({ error: "You have not liked this comment" });
+            return res
+                .status(400)
+                .json({ error: "You have not liked this comment" })
         }
 
         // Remove the like
-        await pool.query('DELETE FROM "likes" WHERE comment_id = $1 AND user_id = $2', [comment_id, userId]);
+        await pool.query(
+            'DELETE FROM "likes" WHERE comment_id = $1 AND user_id = $2',
+            [comment_id, userId]
+        )
         // Update like_count in comments table
-        await updateLikeCount(comment_id);
+        await updateLikeCount(comment_id)
 
-        res.status(200).send();
+        res.status(200).send()
     } catch (error) {
-        console.error("Error unliking comment:", error);
-        res.status(500).send({ error: "Internal server error" });
+        console.error("Error unliking comment:", error)
+        res.status(500).send({ error: "Internal server error" })
     }
 }
 
@@ -209,15 +223,14 @@ async function updateLikeCount(comment_id) {
     const likeCountResult = await pool.query(
         'SELECT COUNT(*) FROM "likes" WHERE comment_id = $1',
         [comment_id]
-    );
-    const likeCount = parseInt(likeCountResult.rows[0].count);
+    )
+    const likeCount = parseInt(likeCountResult.rows[0].count)
 
     await pool.query(
         'UPDATE "comics_comment" SET like_count = $1 WHERE comment_id = $2',
         [likeCount, comment_id]
-    );
+    )
 }
-
 
 module.exports = {
     getAllComics,
@@ -226,5 +239,5 @@ module.exports = {
     updateComment,
     deleteComment,
     unlikeComment,
-    likeComment
+    likeComment,
 }
