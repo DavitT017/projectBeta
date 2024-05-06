@@ -16,7 +16,14 @@ const dateFormatter = new Intl.DateTimeFormat(undefined, {
     timeStyle: "short",
 })
 
-function Comment({ comment_id, user, messages, createdat, like_count }) {
+function Comment({
+    comment_id,
+    user,
+    messages,
+    createdat,
+    like_count,
+    liked_by_me,
+}) {
     const {
         comic,
         getReplies,
@@ -129,7 +136,7 @@ function Comment({ comment_id, user, messages, createdat, like_count }) {
                     <div style={{ padding: "10px" }}>{messages}</div>
                 )}
                 <div>
-                    {like_count > 0 ? (
+                    {liked_by_me ? (
                         <button onClick={onUnlikeComment}>Unlike</button>
                     ) : (
                         <button onClick={onLikeComment}>Like</button>

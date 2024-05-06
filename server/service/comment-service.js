@@ -27,7 +27,8 @@ async function getComic(req, res) {
         const commentsQuery = `
             SELECT c.comment_id, c.messages, c.parent_id, c.user_id, c.createdat
             FROM "comics_comment" c
-            WHERE c.comic_id = $1;
+            WHERE c.comic_id = $1
+            ORDER BY createdat DESC;
         `
         const commentsResult = await pool.query(commentsQuery, [
             req.params.comic_id,
