@@ -75,8 +75,12 @@ function Comment({
     }
 
     const onEditClick = () => {
-        setEditMessage(messages)
-        setIsEditing(true)
+        if (isEditing) {
+            setEditMessage(editMessage)
+        } else {
+            setEditMessage(messages)
+        }
+        setIsEditing(!isEditing)
     }
 
     const onCommentDelete = () => {
@@ -160,9 +164,7 @@ function Comment({
                     >
                         {isReplying ? "Cancel Reply" : "Reply"}
                     </button>
-                    <button
-                        onClick={() => setIsEditing((prevState) => !prevState)}
-                    >
+                    <button onClick={() => onEditClick()}>
                         {isEditing ? "Cancel Edit" : "Edit"}
                     </button>
                     <button
@@ -182,7 +184,6 @@ function Comment({
                         autoFocus
                         loading={createCommentFn.loading}
                         error={createCommentFn.error}
-                        initialMessage={editMessage}
                         handleSubmit={(message) =>
                             onCommentReply(message, comment_id)
                         }
