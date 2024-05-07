@@ -2,10 +2,6 @@ import React from "react"
 import { useFormik } from "formik"
 import * as yup from "yup"
 
-const initialValues = {
-    comment: "",
-}
-
 const validationSchema = yup.object().shape({
     comment: yup
         .string()
@@ -14,18 +10,24 @@ const validationSchema = yup.object().shape({
         .max(250, "The comment is too long"),
 })
 
-function CommentForm({ loading, error, handleSubmit, autoFocus = false }) {
-    const onSubmit = (values, onSubmitProps) => {
-        onSubmitProps.setSubmitting(true)
-        handleSubmit(values?.comment)
-        onSubmitProps.resetForm()
-        onSubmitProps.setSubmitting(false)
-    }
-
+function CommentForm({
+    loading,
+    error,
+    handleSubmit,
+    autoFocus = false,
+    initialMessage = "",
+}) {
     const formik = useFormik({
-        initialValues,
+        initialValues: {
+            comment: initialMessage,
+        },
         validationSchema,
-        onSubmit,
+        onSubmit: (values, onSubmitProps) => {
+            onSubmitProps.setSubmitting(true)
+            handleSubmit(values?.comment)
+            onSubmitProps.resetForm()
+            onSubmitProps.setSubmitting(false)
+        },
     })
 
     return (

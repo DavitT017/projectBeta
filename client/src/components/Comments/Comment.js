@@ -31,13 +31,15 @@ function Comment({
         updateLocalComment,
         deleteLocalComment,
     } = useComics()
-    console.log(comic)
 
     const childComments = getReplies(comment_id)
 
     const [areChildrenHidden, setAreChildrenHidden] = useState(false)
     const [isReplying, setIsReplying] = useState(false)
     const [isEditing, setIsEditing] = useState(false)
+    const [likedByMe, setLikedByMe] = useState(liked_by_me)
+    const [likeCount, setLikeCount] = useState(like_count)
+    const [editMessage, setEditMessage] = useState(messages)
 
     const createCommentFn = useAsyncFn(createComment)
     const updateCommentFn = useAsyncFn(updateComment)
@@ -67,8 +69,14 @@ function Comment({
             })
             .then((comment) => {
                 setIsEditing(false)
+                setEditMessage("")
                 updateLocalComment(comment_id, comment.messages)
             })
+    }
+
+    const onEditClick = () => {
+        setEditMessage(messages)
+        setIsEditing(true)
     }
 
     const onCommentDelete = () => {
@@ -86,11 +94,13 @@ function Comment({
                 comic_id: comic?.comic_id,
                 comment_id,
             })
-            .then(() => {
-                likeCommentFn.value && likeCommentFn.value.error
-                    ? console.log(likeCommentFn.value.error)
-                    : likeCommentFn.value &&
-                      createLocalComment(likeCommentFn.value)
+            .then((response) => {
+                if (response.error) {
+                    console.log(response.error)
+                } else {
+                    setLikedByMe(true)
+                    setLikeCount((prevLikeCount) => prevLikeCount + 1)
+                }
             })
     }
 
@@ -100,11 +110,13 @@ function Comment({
                 comic_id: comic?.comic_id,
                 comment_id,
             })
-            .then(() => {
-                unlikeCommentFn.value && unlikeCommentFn.value.error
-                    ? console.log(unlikeCommentFn.value.error)
-                    : unlikeCommentFn.value &&
-                      deleteLocalComment(unlikeCommentFn.value.comment_id)
+            .then((response) => {
+                if (response.error) {
+                    console.log(response.error)
+                } else {
+                    setLikedByMe(false)
+                    setLikeCount((prevLikeCount) => prevLikeCount - 1)
+                }
             })
     }
 
@@ -129,6 +141,7 @@ function Comment({
                     <CommentForm
                         autoFocus
                         handleSubmit={(message) => onCommentUpdate(message)}
+                        initialMessage={editMessage}
                         loading={updateCommentFn.loading}
                         error={updateCommentFn.error}
                     />
@@ -136,12 +149,12 @@ function Comment({
                     <div style={{ padding: "10px" }}>{messages}</div>
                 )}
                 <div>
-                    {liked_by_me ? (
+                    {likedByMe ? (
                         <button onClick={onUnlikeComment}>Unlike</button>
                     ) : (
                         <button onClick={onLikeComment}>Like</button>
                     )}
-                    <p>{like_count}</p>
+                    <p>{likeCount}</p>
                     <button
                         onClick={() => setIsReplying((prevState) => !prevState)}
                     >
@@ -169,6 +182,7 @@ function Comment({
                         autoFocus
                         loading={createCommentFn.loading}
                         error={createCommentFn.error}
+                        initialMessage={editMessage}
                         handleSubmit={(message) =>
                             onCommentReply(message, comment_id)
                         }
@@ -184,7 +198,6 @@ function Comment({
                     >
                         <button
                             className="collapse-line"
-                            aria-label="Hide Replies"
                             onClick={() => setAreChildrenHidden(true)}
                         />
                         <div className="nested-comments">
