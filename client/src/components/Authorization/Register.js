@@ -62,6 +62,7 @@ const Register = () => {
     return (
         <div>
             <form onSubmit={formik.handleSubmit}>
+                {store.error ? <div>{store.error}</div> : null}
                 <div>
                     <div>
                         <label htmlFor="email">Email</label>

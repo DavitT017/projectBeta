@@ -47,6 +47,10 @@ function Comment({
     const likeCommentFn = useAsyncFn(likeComment)
     const unlikeCommentFn = useAsyncFn(unlikeComment)
 
+    const handleRequestError = (error) => {
+        return error?.response?.data?.message ?? "Error"
+    }
+
     const onCommentReply = (message, parent_id) => {
         return createCommentFn
             .execute({
@@ -58,6 +62,7 @@ function Comment({
                 setIsReplying(false)
                 createLocalComment(comment)
             })
+            .catch(handleRequestError)
     }
 
     const onCommentUpdate = (message) => {
@@ -72,6 +77,7 @@ function Comment({
                 setEditMessage("")
                 updateLocalComment(comment_id, comment.messages)
             })
+            .catch(handleRequestError)
     }
 
     const onEditClick = () => {
@@ -90,6 +96,7 @@ function Comment({
                 comment_id,
             })
             .then(() => deleteLocalComment(comment_id))
+            .catch(handleRequestError)
     }
 
     const onLikeComment = () => {
@@ -99,13 +106,12 @@ function Comment({
                 comment_id,
             })
             .then((response) => {
-                if (response.error) {
-                    console.log(response.error)
-                } else {
+                if (!response.error) {
                     setLikedByMe(true)
                     setLikeCount((prevLikeCount) => prevLikeCount + 1)
                 }
             })
+            .catch(handleRequestError)
     }
 
     const onUnlikeComment = () => {
@@ -115,13 +121,12 @@ function Comment({
                 comment_id,
             })
             .then((response) => {
-                if (response.error) {
-                    console.log(response.error)
-                } else {
+                if (!response.error) {
                     setLikedByMe(false)
                     setLikeCount((prevLikeCount) => prevLikeCount - 1)
                 }
             })
+            .catch(handleRequestError)
     }
 
     return (
@@ -159,6 +164,12 @@ function Comment({
                         <button onClick={onLikeComment}>Like</button>
                     )}
                     <p>{likeCount}</p>
+                    {likeCommentFn.error ? (
+                        <div>{likeCommentFn.error}</div>
+                    ) : null}
+                    {unlikeCommentFn.error ? (
+                        <div>{unlikeCommentFn.error}</div>
+                    ) : null}
                     <button
                         onClick={() => setIsReplying((prevState) => !prevState)}
                     >
