@@ -6,6 +6,7 @@ export default class Store {
     user = {}
     isAuth = false
     isLoading = false
+    error = ""
 
     constructor() {
         makeAutoObservable(this)
@@ -23,14 +24,19 @@ export default class Store {
         this.isLoading = bool
     }
 
+    setError(error) {
+        this.error = error
+    }
+
     async login(username, email, password) {
         try {
             const response = await AuthService.login(username, email, password)
             localStorage.setItem("token", response.data.accessToken)
             this.setAuth(true)
             this.setUser(response.data.user)
-        } catch (e) {
-            console.log("Error while login:", e.response?.data?.message)
+            this.error = ""
+        } catch (errorMessage) {
+            this.error = errorMessage || "Error"
         }
     }
 
@@ -44,8 +50,9 @@ export default class Store {
             localStorage.setItem("token", response.data.accessToken)
             this.setAuth(true)
             this.setUser(response.data.user)
-        } catch (e) {
-            console.log("Error while registration:", e.response?.data?.message)
+            this.error = ""
+        } catch (errorMessage) {
+            this.error = errorMessage || "Error"
         }
     }
 
@@ -55,8 +62,9 @@ export default class Store {
             localStorage.removeItem("token")
             this.setAuth(false)
             this.setUser({})
-        } catch (e) {
-            console.log("Error while logging out", e.response?.data?.message)
+            this.error = ""
+        } catch (errorMessage) {
+            this.error = errorMessage || "Error"
         }
     }
 
