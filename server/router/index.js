@@ -53,6 +53,12 @@ router.post(
     roleMiddleware(['USER', 'ADMIN', 'MODERATOR']),
     commentController.unlikeComment
 );
-
+//Threadner
+router.get("/threads", commentController.getAllThreadsWithComments);
+router.get("/threads/:thread_id", commentController.getThreadWithComments);
+router.post("/threads/:thread_id/comments", commentController.createThreadComment);
+router.post("/threads", commentController.createThread);
+router.put("/threads/:thread_id", commentController.updateThread);
+router.delete("/threads/:thread_id", commentController.deleteThread);
 
 module.exports = router

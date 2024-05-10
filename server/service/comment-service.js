@@ -83,8 +83,8 @@ async function createComment(req, res) {
     try {
         const comic_id = req.params.comic_id
         const query = `
-            INSERT INTO "comics_comment" ("messages", "user_id", "comic_id", "parent_id", "like_count")
-            VALUES ($1, $2, $3, $4, $5)
+            INSERT INTO "comics_comment" ("messages", "user_id", "comic_id", "parent_id","parent_type", "like_count")
+            VALUES ($1, $2, $3, $4,'comic', $5)
             RETURNING *;
         `
         const values = [message, req.cookies.userId, comic_id, parent_id, 0]
@@ -244,6 +244,160 @@ async function updateLikeCount(comment_id) {
     )
 }
 
+// Function to create a thread
+async function createThread(req, res) {
+    const { title, description } = req.body
+
+    if (!title || !description) {
+        return res.status(400).send({ error: "Title and description are required" })
+    }
+
+    try {
+        const query = `
+            INSERT INTO "threads" ("title", "description", "user_id")
+            VALUES ($1, $2, $3)
+            RETURNING *;
+        `
+        const values = [title, description, req.cookies.userId]
+        const result = await pool.query(query, values)
+
+        const newThread = result.rows[0]
+
+        res.json(newThread)
+    } catch (error) {
+        console.error("Error creating thread:", error)
+        res.status(500).send({ error: "Internal server error" })
+    }
+}
+
+// Function to create a comment on a thread
+async function createThreadComment(req, res) {
+    const { message, parent_id } = req.body;
+
+    if (!message) {
+        return res.status(400).send({ error: "Message is required" });
+    }
+
+    try {
+        const thread_id = req.params.thread_id
+        const query = `
+            INSERT INTO "comics_comment" ("messages", "user_id", "parent_id","parent_type", "like_count", "thread_id")
+            VALUES ($1, $2, $3,'thread', $4, $5)
+            RETURNING *;
+        `
+        const values = [message, req.cookies.userId, parent_id, 0, thread_id]
+        const result = await pool.query(query, values)
+
+        const newComment = result.rows[0];
+
+        res.json(newComment);
+    } catch (error) {
+        console.error("Error creating thread comment:", error);
+        res.status(500).send({ error: "Internal server error" });
+    }
+}
+
+
+// Function to get all threads with comments
+async function getAllThreadsWithComments(req, res) {
+    try {
+        const query = `
+            SELECT 
+                t.thread_id,
+                t.title,
+                t.description,
+                t.user_id,
+                t.created_at,
+                COUNT(c.comment_id) AS comment_count
+            FROM 
+                "threads" t
+            LEFT JOIN 
+                "comics_comment" c ON t.thread_id = c.parent_id AND c.parent_type = 'thread'
+            GROUP BY 
+                t.thread_id, t.title, t.description, t.user_id, t.created_at;
+        `;
+        const result = await pool.query(query);
+        res.json(result.rows);
+    } catch (error) {
+        console.error("Error fetching threads:", error);
+        res.status(500).send({ error: "Internal server error" });
+    }
+}
+
+// Function to get a thread by ID with comments
+async function getThreadWithComments(req, res) {
+    try {
+        const query = `
+            SELECT 
+                t.thread_id,
+                t.title,
+                t.description,
+                t.user_id,
+                t.created_at,
+                COUNT(c.comment_id) AS comment_count
+            FROM 
+                "threads" t
+            LEFT JOIN 
+                "comics_comment" c ON t.thread_id = c.parent_id AND c.parent_type = 'thread'
+            WHERE 
+                t.thread_id = $1
+            GROUP BY 
+                t.thread_id, t.title, t.description, t.user_id, t.created_at;
+        `;
+        const result = await pool.query(query, [req.params.thread_id]);
+        const thread = result.rows[0];
+
+        if (!thread) {
+            return res.status(404).send({ error: "Thread not found" });
+        }
+
+        res.json(thread);
+    } catch (error) {
+        console.error("Error fetching thread:", error);
+        res.status(500).send({ error: "Internal server error" });
+    }
+}
+
+
+// Function to update a thread
+async function updateThread(req, res) {
+    const { title, description } = req.body
+    if (!title || !description) {
+        return res.status(400).send({ error: "Title and description are required" })
+    }
+
+    try {
+        const query = `
+            UPDATE "threads"
+            SET "title" = $1, "description" = $2
+            WHERE thread_id = $3
+            RETURNING *;
+        `
+        const values = [title, description, req.params.thread_id]
+        const result = await pool.query(query, values)
+        const updatedThread = result.rows[0]
+        res.json(updatedThread)
+    } catch (error) {
+        console.error("Error updating thread:", error)
+        res.status(500).send({ error: "Internal server error" })
+    }
+}
+
+// Function to delete a thread
+async function deleteThread(req, res) {
+    try {
+        await pool.query('DELETE FROM "threads" WHERE thread_id = $1', [req.params.thread_id])
+        // Also delete comments associated with the thread
+        await pool.query('DELETE FROM "comics_comment" WHERE parent_id = $1 AND parent_type = $2', [req.params.thread_id, 'thread'])
+        res.status(204).send()
+        console.log("Thread Deleted")
+    } catch (error) {
+        console.error("Error deleting thread:", error)
+        res.status(500).send({ error: "Internal server error" })
+    }
+}
+
+
 module.exports = {
     getAllComics,
     getComic,
@@ -252,4 +406,10 @@ module.exports = {
     deleteComment,
     unlikeComment,
     likeComment,
+    createThread,
+    createThreadComment,
+    getAllThreadsWithComments,
+    getThreadWithComments,
+    updateThread,
+    deleteThread
 }
