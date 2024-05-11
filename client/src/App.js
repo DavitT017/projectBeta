@@ -4,14 +4,16 @@ import { Routes, Route, NavLink } from "react-router-dom"
 import Login from "./components/Authorization/Login"
 import Register from "./components/Authorization/Register"
 import Bookmarks from "./components/Bookmarks/Bookmarks"
-import Forum from "./components/Forum/Forum"
 import Genres from "./components/Genres/Genres"
 import Rating from "./components/Rating/Rating"
 import { AuthorizationContext } from "./index"
 import { observer } from "mobx-react-lite"
 import { ComicsList } from "./components/Comments/ComicsList"
+import { ThreadList } from "./components/Forum/ThreadList"
 import ComicsContextProvider from "./context/ComicsContext"
+import ThreadContextProvider from "./context/ThreadContext"
 import Comics from "./components/Comments/Comics"
+import Thread from "./components/Forum/Thread"
 
 function Home() {
     return (
@@ -30,7 +32,7 @@ function Home() {
                 <NavLink to="/comics">
                     <button>Comics</button>
                 </NavLink>
-                <NavLink to="/forum">
+                <NavLink to="/threads">
                     <button>Forum</button>
                 </NavLink>
                 <NavLink to="/genres">
@@ -66,7 +68,6 @@ function App() {
                 <Route path="/login" element={<Login />} />
                 <Route path="/registration" element={<Register />} />
                 <Route path="/bookmarks" element={<Bookmarks />} />
-                <Route path="/forum" element={<Forum />} />
                 <Route path="/genres" element={<Genres />} />
                 <Route path="/rating" element={<Rating />} />
                 <Route path="/comics" element={<ComicsList />} />
@@ -76,6 +77,15 @@ function App() {
                         <ComicsContextProvider>
                             <Comics />
                         </ComicsContextProvider>
+                    }
+                />
+                <Route path="/threads" element={<ThreadList />} />
+                <Route
+                    path="/threads/:thread_id"
+                    element={
+                        <ThreadContextProvider>
+                            <Thread />
+                        </ThreadContextProvider>
                     }
                 />
             </Routes>

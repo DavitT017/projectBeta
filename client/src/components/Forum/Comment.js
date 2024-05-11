@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { useComics } from "../../context/ComicsContext"
+import { useThread } from "../../context/ThreadContext"
 import CommentsList from "./CommentsList"
 import CommentForm from "./CommentForm"
 import { useAsyncFn } from "../../hooks/useAsync"
@@ -9,7 +9,7 @@ import {
     updateComment,
     likeComment,
     unlikeComment,
-} from "../../services/comicComments"
+} from "../../services/threadComments"
 
 const dateFormatter = new Intl.DateTimeFormat(undefined, {
     dateStyle: "medium",
@@ -25,12 +25,13 @@ function Comment({
     liked_by_me,
 }) {
     const {
-        comic,
+        thread,
         getReplies,
         createLocalComment,
         updateLocalComment,
         deleteLocalComment,
-    } = useComics()
+    } = useThread()
+    console.log(thread)
 
     const childComments = getReplies(comment_id)
 
@@ -54,7 +55,7 @@ function Comment({
     const onCommentReply = (message, parent_id) => {
         return createCommentFn
             .execute({
-                comic_id: comic?.comic_id,
+                thread_id: thread?.thread_id,
                 message,
                 parent_id,
             })
@@ -68,7 +69,7 @@ function Comment({
     const onCommentUpdate = (message) => {
         return updateCommentFn
             .execute({
-                comic_id: comic?.comic_id,
+                thread_id: thread?.thread_id,
                 message,
                 comment_id,
             })
@@ -92,7 +93,7 @@ function Comment({
     const onCommentDelete = () => {
         return deleteCommentFn
             .execute({
-                comic_id: comic?.comic_id,
+                thread_id: thread?.thread_id,
                 comment_id,
             })
             .then(() => deleteLocalComment(comment_id))
@@ -102,7 +103,7 @@ function Comment({
     const onLikeComment = () => {
         return likeCommentFn
             .execute({
-                comic_id: comic?.comic_id,
+                thread_id: thread?.thread_id,
                 comment_id,
             })
             .then((response) => {
@@ -117,7 +118,7 @@ function Comment({
     const onUnlikeComment = () => {
         return unlikeCommentFn
             .execute({
-                comic_id: comic?.comic_id,
+                thread_id: thread?.thread_id,
                 comment_id,
             })
             .then((response) => {
