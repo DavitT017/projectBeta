@@ -37,6 +37,15 @@ async function getComic(req, res) {
         const comments = commentsResult.rows
 
         for (let comment of comments) {
+			const userQuery = `
+                SELECT user_id, username, avatar_url
+                FROM "users"
+                WHERE user_id = $1;
+            `
+            const userResult = await pool.query(userQuery, [comment.user_id])
+            const user = userResult.rows[0]
+            comment.user = user
+			
             const likeCountResult = await pool.query(
                 'SELECT COUNT(*) FROM "likes" WHERE comment_id = $1',
                 [comment.comment_id]
