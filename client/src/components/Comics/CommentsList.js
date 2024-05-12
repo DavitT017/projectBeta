@@ -1,5 +1,5 @@
 import React from "react"
-import Comment from "./Comment"
+import Comment from "./ComicsComment"
 
 function CommentsList({ comments }) {
     if (comments) {

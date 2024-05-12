@@ -8,11 +8,11 @@ import Genres from "./components/Genres/Genres"
 import Rating from "./components/Rating/Rating"
 import { AuthorizationContext } from "./index"
 import { observer } from "mobx-react-lite"
-import { ComicsList } from "./components/Comments/ComicsList"
+import { ComicsList } from "./components/Comics/ComicsList"
 import { ThreadList } from "./components/Forum/ThreadList"
 import ComicsContextProvider from "./context/ComicsContext"
 import ThreadContextProvider from "./context/ThreadContext"
-import Comics from "./components/Comments/Comics"
+import Comics from "./components/Comics/Comics"
 import Thread from "./components/Forum/Thread"
 
 function Home() {

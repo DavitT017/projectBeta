@@ -1,7 +1,7 @@
 import React from "react"
 import { useComics, handleRequestError } from "../../context/ComicsContext"
 import CommentsList from "./CommentsList"
-import CommentForm from "./CommentForm"
+import CommentForm from "../Comments/CommentForm"
 import { useAsyncFn } from "../../hooks/useAsync"
 import { createComment } from "../../services/comicComments"
 
