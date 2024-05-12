@@ -1,6 +1,6 @@
 import React from "react"
 import { useThread, handleRequestError } from "../../context/ThreadContext"
-import CommentsList from "./CommentsList"
+import CommentsList from "./ThreadCommentsList"
 import CommentForm from "../Comments/CommentForm"
 import { useAsyncFn } from "../../hooks/useAsync"
 import { createComment } from "../../services/threadComments"

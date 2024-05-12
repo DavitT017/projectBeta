@@ -20,5 +20,9 @@ module.exports = function (err, req, res, next) {
         return res.status(400).send({ message: err.message })
     }
 
+    if (err.message.includes("password")) {
+        return res.status(401).send({ message: err.message })
+    }
+
     return res.status(500).send({ message: "Unknown Error" })
 }

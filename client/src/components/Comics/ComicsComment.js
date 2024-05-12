@@ -1,6 +1,6 @@
 import React, { useState } from "react"
 import { useComics } from "../../context/ComicsContext"
-import CommentsList from "./CommentsList"
+import CommentsList from "./ComicsCommentsList"
 import CommentForm from "../Comments/CommentForm"
 import { useAsyncFn } from "../../hooks/useAsync"
 import {

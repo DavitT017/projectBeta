@@ -1,6 +1,6 @@
 import React, { useState } from "react"
 import { useThread, handleRequestError } from "../../context/ThreadContext"
-import CommentsList from "./CommentsList"
+import CommentsList from "./ThreadCommentsList"
 import CommentForm from "../Comments/CommentForm"
 import { useAsyncFn } from "../../hooks/useAsync"
 import {
@@ -31,7 +31,6 @@ function Comment({
         updateLocalComment,
         deleteLocalComment,
     } = useThread()
-    console.log(thread)
 
     const childComments = getReplies(comment_id)
 
