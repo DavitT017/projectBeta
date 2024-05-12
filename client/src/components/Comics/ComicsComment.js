@@ -10,6 +10,7 @@ import {
     likeComment,
     unlikeComment,
 } from "../../services/comicComments"
+import unknownAvatar from "../../assets/Avatar.png"
 
 const dateFormatter = new Intl.DateTimeFormat(undefined, {
     dateStyle: "medium",
@@ -141,11 +142,22 @@ function Comment({
                     marginTop: "30px",
                 }}
             >
-                <div>
+                <div
+                    style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                    }}
+                >
+                    <img
+                        className="user-avatar"
+                        src={user?.avatar_url || unknownAvatar}
+                        alt="avatar"
+                    />
                     <span>{user?.username} | </span>
                     <span>{dateFormatter.format(Date.parse(createdat))}</span>
-                    <hr />
                 </div>
+                <hr />
                 {isEditing ? (
                     <CommentForm
                         autoFocus

@@ -11,11 +11,11 @@ export const AuthorizationContext = createContext({ store })
 
 const root = ReactDOM.createRoot(document.getElementById("root"))
 root.render(
-    // <React.StrictMode>
+    <React.StrictMode>
         <AuthorizationContext.Provider value={{ store }}>
             <BrowserRouter>
                 <App />
             </BrowserRouter>
         </AuthorizationContext.Provider>
-    // </React.StrictMode>
+    </React.StrictMode>
 )

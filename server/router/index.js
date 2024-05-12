@@ -4,14 +4,13 @@ const commentController = require("../service/c_comment-service")
 const threadController = require("../service/t_comment-service")
 const router = new Router()
 const { body } = require("express-validator")
-// Import the role middleware
 const roleMiddleware = require("../middlewares/role-middleware")
 
 router.post(
-	"/registration",
-	body("email").isEmail(),
-	body("password").isLength({ min: 6, max: 20 }),
-	userController.registration
+    "/registration",
+    body("email").isEmail(),
+    body("password").isLength({ min: 6, max: 20 }),
+    userController.registration
 )
 
 router.post("/login", userController.login)
@@ -26,34 +25,35 @@ router.get("/comics/:comic_id", commentController.getComic)
 
 // Comments
 router.post(
-	"/comics/:comic_id/comments",
-	roleMiddleware(["USER", "ADMIN", "MODERATOR"]),
-	commentController.createComment
+    "/comics/:comic_id/comments",
+    roleMiddleware(["USER", "ADMIN", "MODERATOR"]),
+    commentController.createComment
 )
 
 router.put(
-	"/comics/:comic_id/comments/:comment_id",
-	roleMiddleware(["ADMIN", "MODERATOR"]),
-	commentController.updateComment
+    "/comics/:comic_id/comments/:comment_id",
+    roleMiddleware(["ADMIN", "MODERATOR"]),
+    commentController.updateComment
 )
 
 router.delete(
-	"/comics/:comic_id/comments/:comment_id",
-	roleMiddleware(["ADMIN", "MODERATOR"]),
-	commentController.deleteComment
+    "/comics/:comic_id/comments/:comment_id",
+    roleMiddleware(["ADMIN", "MODERATOR"]),
+    commentController.deleteComment
 )
 
 router.post(
-	"/comics/:comic_id/comments/:comment_id/like",
-	roleMiddleware(["USER", "ADMIN", "MODERATOR"]),
-	commentController.likeComment
+    "/comics/:comic_id/comments/:comment_id/like",
+    roleMiddleware(["USER", "ADMIN", "MODERATOR"]),
+    commentController.likeComment
 )
 
 router.post(
-	"/comics/:comic_id/comments/:comment_id/unlike",
-	roleMiddleware(["USER", "ADMIN", "MODERATOR"]),
-	commentController.unlikeComment
+    "/comics/:comic_id/comments/:comment_id/unlike",
+    roleMiddleware(["USER", "ADMIN", "MODERATOR"]),
+    commentController.unlikeComment
 )
+
 //Threads
 router.get("/threads", threadController.getAllThreadsWithComments)
 router.get("/threads/:thread_id", threadController.getThreadWithComments)
@@ -63,33 +63,33 @@ router.delete("/threads/:thread_id", threadController.deleteThread)
 
 //Thread Comments
 router.post(
-	"/threads/:thread_id/comments",
-	roleMiddleware(["USER", "ADMIN", "MODERATOR"]),
-	threadController.createThreadComment
+    "/threads/:thread_id/comments",
+    roleMiddleware(["USER", "ADMIN", "MODERATOR"]),
+    threadController.createThreadComment
 )
 
 router.put(
-	"/threads/:thread_id/comments/:comment_id",
-	roleMiddleware(["ADMIN", "MODERATOR"]),
-	commentController.updateComment
+    "/threads/:thread_id/comments/:comment_id",
+    roleMiddleware(["ADMIN", "MODERATOR"]),
+    commentController.updateComment
 )
 
 router.delete(
-	"/threads/:thread_id/comments/:comment_id",
-	roleMiddleware(["ADMIN", "MODERATOR"]),
-	commentController.deleteComment
+    "/threads/:thread_id/comments/:comment_id",
+    roleMiddleware(["ADMIN", "MODERATOR"]),
+    commentController.deleteComment
 )
 
 router.post(
-	"/threads/:thread_id/comments/:comment_id/like",
-	roleMiddleware(["USER", "ADMIN", "MODERATOR"]),
-	commentController.likeComment
+    "/threads/:thread_id/comments/:comment_id/like",
+    roleMiddleware(["USER", "ADMIN", "MODERATOR"]),
+    commentController.likeComment
 )
 
 router.post(
-	"/threads/:thread_id/comments/:comment_id/unlike",
-	roleMiddleware(["USER", "ADMIN", "MODERATOR"]),
-	commentController.unlikeComment
+    "/threads/:thread_id/comments/:comment_id/unlike",
+    roleMiddleware(["USER", "ADMIN", "MODERATOR"]),
+    commentController.unlikeComment
 )
 
 module.exports = router

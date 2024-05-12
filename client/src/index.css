@@ -9,7 +9,6 @@ body {
     -moz-osx-font-smoothing: grayscale;
 }
 
-
 *,
 *::before,
 *::after {
@@ -100,4 +99,10 @@ button {
 
 .btn[disabled] {
     --color: hsl(var(--hue), 20%, 74%);
+}
+
+.user-avatar {
+    width: 30px;
+    border-radius: 50%;
+    margin-right: 5px;
 }
