@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { useThread } from "../../context/ThreadContext"
+import { useThread, handleRequestError } from "../../context/ThreadContext"
 import CommentsList from "./CommentsList"
 import CommentForm from "./CommentForm"
 import { useAsyncFn } from "../../hooks/useAsync"
@@ -47,10 +47,6 @@ function Comment({
     const deleteCommentFn = useAsyncFn(deleteComment)
     const likeCommentFn = useAsyncFn(likeComment)
     const unlikeCommentFn = useAsyncFn(unlikeComment)
-
-    const handleRequestError = (error) => {
-        return error?.response?.data?.message ?? "Error"
-    }
 
     const onCommentReply = (message, parent_id) => {
         return createCommentFn

@@ -11,6 +11,10 @@ import { useParams } from "react-router-dom"
 
 const ComicsContext = createContext(null)
 
+export const handleRequestError = (error) => {
+    return error?.response?.data?.message ?? "Error"
+}
+
 export function useComics() {
     return useContext(ComicsContext)
 }

@@ -11,6 +11,10 @@ import { useParams } from "react-router-dom"
 
 const ThreadContext = createContext(null)
 
+export const handleRequestError = (error) => {
+    return error?.response?.data?.message ?? "Error"
+}
+
 export function useThread() {
     return useContext(ThreadContext)
 }

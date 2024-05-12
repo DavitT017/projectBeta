@@ -1,5 +1,5 @@
 import React from "react"
-import { useThread } from "../../context/ThreadContext"
+import { useThread, handleRequestError } from "../../context/ThreadContext"
 import CommentsList from "./CommentsList"
 import CommentForm from "./CommentForm"
 import { useAsyncFn } from "../../hooks/useAsync"
@@ -14,9 +14,9 @@ function Thread() {
     } = useAsyncFn(createComment)
 
     function onCommentCreate(message) {
-        return createCommentFn({ thread_id: thread.thread_id, message }).then(
-            createLocalComment
-        )
+        return createCommentFn({ thread_id: thread.thread_id, message })
+            .then(createLocalComment)
+            .catch(handleRequestError)
     }
 
     return (

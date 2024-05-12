@@ -1,5 +1,5 @@
 import React from "react"
-import { useComics } from "../../context/ComicsContext"
+import { useComics, handleRequestError } from "../../context/ComicsContext"
 import CommentsList from "./CommentsList"
 import CommentForm from "./CommentForm"
 import { useAsyncFn } from "../../hooks/useAsync"
@@ -14,9 +14,9 @@ function Comics() {
     } = useAsyncFn(createComment)
 
     function onCommentCreate(message) {
-        return createCommentFn({ comic_id: comic.comic_id, message }).then(
-            createLocalComment
-        )
+        return createCommentFn({ comic_id: comic.comic_id, message })
+            .then(createLocalComment)
+            .catch(handleRequestError)
     }
 
     return (
