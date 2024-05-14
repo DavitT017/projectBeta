@@ -11,7 +11,16 @@ export const ThreadList = () => {
     if (!threads) return null
 
     return threads.map((thread) => (
-        <div key={thread.thread_id}>
+        <div
+            key={thread.thread_id}
+            style={{
+                width: "500px",
+                border: "1px solid white",
+                borderRadius: "10px",
+                margin: "auto",
+                marginBottom: "30px",
+            }}
+        >
             <NavLink
                 style={{ textDecoration: "none", color: "white" }}
                 to={`/threads/${thread.thread_id}`}
