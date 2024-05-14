@@ -98,7 +98,7 @@ async function updateThreadCommentCount(thread_id) {
 async function getAllThreadsWithComments(req, res) {
     try {
         const query = `
-            SELECT thread_id, title, description, user_id, created_at, comment_count, thread_type FROM "threads";
+            SELECT thread_id, title, description, user_id, created_at, comment_count, thread_type FROM "threads" ORDER BY comment_count DESC;
         `
         const result = await pool.query(query)
         const threads = result.rows
