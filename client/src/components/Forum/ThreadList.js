@@ -11,13 +11,14 @@ export const ThreadList = () => {
     if (!threads) return null
 
     return threads.map((thread) => (
-        <h1 key={thread.thread_id}>
+        <div key={thread.thread_id}>
             <NavLink
-                style={{ textDecoration: "none", color: "blue" }}
+                style={{ textDecoration: "none", color: "white" }}
                 to={`/threads/${thread.thread_id}`}
             >
-                {thread.title}
+                <h1>{thread.title}</h1>
+                <p>{thread.comment_count} messages</p>
             </NavLink>
-        </h1>
+        </div>
     ))
 }
