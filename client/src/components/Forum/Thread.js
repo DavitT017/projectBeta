@@ -7,6 +7,7 @@ import { createComment } from "../../services/threadComments"
 
 function Thread() {
     const { thread, rootComments, createLocalComment } = useThread()
+
     const {
         loading,
         error,
@@ -18,12 +19,12 @@ function Thread() {
             .then(createLocalComment)
             .catch(handleRequestError)
     }
-
     return (
         <div>
             <div style={{ border: "1px solid" }}>
                 <h1>{thread.title}</h1>
                 <p>{thread.description}</p>
+                <button>Edit</button>
             </div>
             <div>
                 <h3>Comments</h3>
