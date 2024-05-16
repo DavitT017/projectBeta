@@ -8,16 +8,17 @@ filter.addWords(...words)
 // Function to create a thread
 async function createThread(req, res) {
     const { title, description, thread_type } = req.body
+    
     if (!title || !description || !thread_type) {
         return res
             .status(400)
-            .send({ error: "Thread form fields are required" })
+            .send({ message: "Thread form fields are required" })
     }
 
     if (filter.isProfane(title) || filter.isProfane(description)) {
         return res
             .status(400)
-            .send({ error: "Thread contains inappropriate language." })
+            .send({ message: "Thread contains inappropriate language." })
     }
 
     try {
@@ -48,13 +49,13 @@ async function createThreadComment(req, res) {
     if (filter.isProfane(message)) {
         return res
             .status(400)
-            .send({ error: "Message contains inappropriate language." })
+            .send({ message: "Message contains inappropriate language." })
     }
 
     try {
         const thread_id = req.params.thread_id
         const query = `
-            INSERT INTO "comics_comment" ("messages", "user_id", "parent_id","parent_type", "like_count", "thread_id")
+            INSERT INTO "comics_comment" ("messages", "user_id", "parent_id", "parent_type", "like_count", "thread_id")
             VALUES ($1, $2, $3,'thread', $4, $5)
             RETURNING *;
         `
@@ -224,7 +225,7 @@ async function updateThread(req, res) {
     if (filter.isProfane(title) || filter.isProfane(description)) {
         return res
             .status(400)
-            .send({ error: "Thread contains inappropriate language." })
+            .send({ message: "Thread contains inappropriate language." })
     }
 
     try {

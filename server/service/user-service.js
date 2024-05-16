@@ -37,7 +37,7 @@ class UserService {
             if (filter.isProfane(username)) {
                 // 400 code
                 throw ApiError.BadRequest(
-                    "Username contains inappropriate language. Please choose another username."
+                    "Username contains inappropriate language."
                 )
             }
 

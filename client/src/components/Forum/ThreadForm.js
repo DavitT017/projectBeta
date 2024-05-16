@@ -2,12 +2,6 @@ import React from "react"
 import { useFormik } from "formik"
 import * as yup from "yup"
 
-const initialValues = {
-    title: "",
-    description: "",
-    thread_type: "",
-}
-
 const validationSchema = yup.object().shape({
     title: yup
         .string()
@@ -22,9 +16,20 @@ const validationSchema = yup.object().shape({
     thread_type: yup.string().required("Thread type is required"),
 })
 
-function ThreadForm({ loading, error, handleSubmit }) {
+function ThreadForm({
+    loading,
+    error,
+    handleSubmit,
+    initialTitle = "",
+    initialDescription = "",
+    initialThreadType = "",
+}) {
     const formik = useFormik({
-        initialValues,
+        initialValues: {
+            title: initialTitle,
+            description: initialDescription,
+            thread_type: initialThreadType,
+        },
         validationSchema,
         onSubmit: (values, onSubmitProps) => {
             onSubmitProps.setSubmitting(true)
