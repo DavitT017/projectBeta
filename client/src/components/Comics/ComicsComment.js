@@ -21,7 +21,7 @@ function Comment({
     comment_id,
     user,
     messages,
-    createdat,
+    created_at,
     like_count,
     liked_by_me,
 }) {
@@ -155,7 +155,7 @@ function Comment({
                         alt="avatar"
                     />
                     <span>{user?.username} | </span>
-                    <span>{dateFormatter.format(Date.parse(createdat))}</span>
+                    <span>{dateFormatter.format(Date.parse(created_at))}</span>
                 </div>
                 <hr />
                 {isEditing ? (

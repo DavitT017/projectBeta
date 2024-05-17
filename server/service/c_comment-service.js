@@ -31,10 +31,10 @@ async function getComic(req, res) {
 		const comic = comicResult.rows[0]
 
 		const commentsQuery = `
-            SELECT c.comment_id, c.messages, c.parent_id, c.user_id, c.createdat
+            SELECT c.comment_id, c.messages, c.parent_id, c.user_id, c.created_at
             FROM "comics_comment" c
             WHERE c.comic_id = $1
-            ORDER BY createdat DESC;
+            ORDER BY created_at DESC;
         `
 		const commentsResult = await pool.query(commentsQuery, [
 			req.params.comic_id,
@@ -99,8 +99,8 @@ async function createComment(req, res) {
 	try {
 		const comic_id = req.params.comic_id
 		const query = `
-            INSERT INTO "comics_comment" ("messages", "user_id", "comic_id", "parent_id","parent_type", "like_count")
-            VALUES ($1, $2, $3, $4,'comic', $5)
+            INSERT INTO "comics_comment" ("messages", "user_id", "comic_id", "parent_id","parent_type", "like_count", "created_at")
+            VALUES ($1, $2, $3, $4,'comic', $5, NOW() AT TIME ZONE 'UTC')
             RETURNING *;
         `
 		const values = [message, req.cookies.userId, comic_id, parent_id, 0]

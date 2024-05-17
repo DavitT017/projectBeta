@@ -22,8 +22,8 @@ async function createThread(req, res) {
 
     try {
         const query = `
-            INSERT INTO "threads" ("title", "description", "user_id", "thread_type")
-            VALUES ($1, $2, $3, $4)
+            INSERT INTO "threads" ("title", "description", "user_id", "thread_type", "created_at")
+            VALUES ($1, $2, $3, $4, NOW() AT TIME ZONE 'UTC')
             RETURNING *;
         `
         const values = [title, description, req.cookies.userId, thread_type]
@@ -54,8 +54,8 @@ async function createThreadComment(req, res) {
     try {
         const thread_id = req.params.thread_id
         const query = `
-            INSERT INTO "comics_comment" ("messages", "user_id", "parent_id","parent_type", "like_count", "thread_id")
-            VALUES ($1, $2, $3,'thread', $4, $5)
+            INSERT INTO "comics_comment" ("messages", "user_id", "parent_id","parent_type", "like_count", "thread_id", "created_at")
+            VALUES ($1, $2, $3,'thread', $4, $5, NOW() AT TIME ZONE 'UTC')
             RETURNING *;
         `
         const values = [message, req.cookies.userId, parent_id, 0, thread_id]
@@ -105,9 +105,9 @@ async function getAllThreadsWithComments(req, res) {
 
         for (let thread of threads) {
             const commentsQuery = `
-                SELECT  c.comment_id, c.messages, c.parent_id, c.user_id, c.createdat FROM "comics_comment" c 
+                SELECT  c.comment_id, c.messages, c.parent_id, c.user_id, c.created_at FROM "comics_comment" c 
                 WHERE  c.thread_id = $1 AND c.parent_type = 'thread'
-                ORDER BY c.createdat DESC;
+                ORDER BY c.created_at DESC;
             `
             const commentsResult = await pool.query(commentsQuery, [
                 thread.thread_id,
@@ -163,7 +163,7 @@ async function getThreadWithComments(req, res) {
         }
 
         const commentsQuery = `
-            SELECT c.comment_id, c.messages, c.parent_id, c.user_id, c.createdat, c.like_count
+            SELECT c.comment_id, c.messages, c.parent_id, c.user_id, c.created_at, c.like_count
             FROM "comics_comment" c
             WHERE c.thread_id = $1 AND c.parent_type = 'thread'
             ORDER BY c.like_count DESC;
