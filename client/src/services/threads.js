@@ -1,7 +1,9 @@
 import { makeRequest } from "./makeRequest"
 
-export function getThreads() {
-    return makeRequest("/threads")
+export function getThreads(page = 1, limit = 10) {
+    return makeRequest("/threads", {
+        params: { page, limit },
+    })
 }
 
 export function getAThread(thread_id) {

@@ -1,7 +1,7 @@
-import React from "react"
+import React, { useState, useEffect } from "react"
 import { createThread, getThreads } from "../../services/threads"
 import { NavLink, useNavigate } from "react-router-dom"
-import { useAsync, useAsyncFn } from "../../hooks/useAsync"
+import { useAsyncFn } from "../../hooks/useAsync"
 import Chat from "../../assets/Chat.png"
 import Bug from "../../assets/Bug.png"
 import Support from "../../assets/Support.png"
@@ -12,7 +12,27 @@ import { handleRequestError } from "../../context/ThreadContext"
 export const ThreadList = () => {
     const navigate = useNavigate()
 
-    const { loading, error, value: threads } = useAsync(getThreads)
+    const [page, setPage] = useState(1)
+    const [threads, setThreads] = useState([])
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState(null)
+    const [pageCount, setPageCount] = useState(0)
+
+    useEffect(() => {
+        const fetchThreads = async () => {
+            try {
+                setLoading(true)
+                const response = await getThreads(page)
+                setThreads(response.threads)
+                setPageCount(response.totalPages)
+                setLoading(false)
+            } catch (err) {
+                setError(err.message)
+                setLoading(false)
+            }
+        }
+        fetchThreads()
+    }, [page])
 
     const {
         loading: formLoading,
@@ -44,44 +64,57 @@ export const ThreadList = () => {
                 return Suggestion
 
             default:
-                return null
+                return Chat
         }
     }
 
     return (
         <React.Fragment>
-            <React.Fragment>
-                {threads.map((thread) => (
-                    <div
-                        key={thread.thread_id}
+            {threads.map((thread) => (
+                <div
+                    key={thread.thread_id}
+                    style={{
+                        width: "500px",
+                        border: "1px solid white",
+                        borderRadius: "10px",
+                        margin: "auto",
+                        marginBottom: "30px",
+                    }}
+                >
+                    <NavLink
                         style={{
-                            width: "500px",
-                            border: "1px solid white",
-                            borderRadius: "10px",
-                            margin: "auto",
-                            marginBottom: "30px",
+                            textDecoration: "none",
+                            color: "white",
                         }}
+                        to={`/threads/${thread.thread_id}`}
                     >
-                        <NavLink
-                            style={{
-                                textDecoration: "none",
-                                color: "white",
-                            }}
-                            to={`/threads/${thread.thread_id}`}
-                        >
-                            <img
-                                style={{ width: "50px" }}
-                                src={checkThreadType(thread.thread_type)}
-                                alt="thread-icon"
-                            />
-                            <div>
-                                <h1>{thread.title}</h1>
-                                <p>{thread.comment_count} messages</p>
-                            </div>
-                        </NavLink>
-                    </div>
-                ))}
-            </React.Fragment>
+                        <img
+                            style={{ width: "50px" }}
+                            src={checkThreadType(thread.thread_type)}
+                            alt="thread-icon"
+                        />
+                        <div>
+                            <h1>{thread.title}</h1>
+                            <p>{thread.comment_count} messages</p>
+                        </div>
+                    </NavLink>
+                </div>
+            ))}
+            <div>
+                <button
+                    onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+                    disabled={page === 1}
+                >
+                    Previous
+                </button>
+                <span>{page}</span>
+                <button
+                    onClick={() => setPage((prev) => Math.min(prev + 1, pageCount))}
+                    disabled={page === pageCount}
+                >
+                    Next
+                </button>
+            </div>
             <ThreadForm
                 loading={formLoading}
                 error={formError}

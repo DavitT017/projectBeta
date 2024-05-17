@@ -97,52 +97,67 @@ async function updateThreadCommentCount(thread_id) {
 
 // Function to get all threads with comments
 async function getAllThreadsWithComments(req, res) {
+    const page = parseInt(req.query.page) || 1; // Default to page 1 if not provided
+    const limit = parseInt(req.query.limit) || 10; // Default to 10 items per page if not provided
+    const offset = (page - 1) * limit;
+
     try {
+        // Fetch total count of threads for pagination
+        const countQuery = 'SELECT COUNT(*) FROM "threads"';
+        const countResult = await pool.query(countQuery);
+        const totalCount = parseInt(countResult.rows[0].count);
+        const totalPages = Math.ceil(totalCount / limit);
+
+        // Fetch the paginated threads
         const query = `
-            SELECT thread_id, title, description, user_id, created_at, comment_count, thread_type FROM "threads" ORDER BY comment_count DESC;
-        `
-        const result = await pool.query(query)
-        const threads = result.rows
+            SELECT thread_id, title, description, user_id, created_at, comment_count, thread_type 
+            FROM "threads" 
+            ORDER BY comment_count DESC 
+            LIMIT $1 OFFSET $2;
+        `;
+        const values = [limit, offset];
+        const result = await pool.query(query, values);
+        const threads = result.rows;
 
         for (let thread of threads) {
             const commentsQuery = `
-                SELECT  c.comment_id, c.messages, c.parent_id, c.user_id, c.created_at FROM "comics_comment" c 
-                WHERE  c.thread_id = $1 AND c.parent_type = 'thread'
+                SELECT c.comment_id, c.messages, c.parent_id, c.user_id, c.created_at 
+                FROM "comics_comment" c 
+                WHERE c.thread_id = $1 AND c.parent_type = 'thread'
                 ORDER BY c.created_at DESC;
-            `
-            const commentsResult = await pool.query(commentsQuery, [
-                thread.thread_id,
-            ])
-            const comments = commentsResult.rows
+            `;
+            const commentsResult = await pool.query(commentsQuery, [thread.thread_id]);
+            const comments = commentsResult.rows;
 
             for (let comment of comments) {
                 const likeCountResult = await pool.query(
                     'SELECT COUNT(*) FROM "likes" WHERE comment_id = $1',
                     [comment.comment_id]
-                )
-                comment.like_count = parseInt(likeCountResult.rows[0].count)
+                );
+                comment.like_count = parseInt(likeCountResult.rows[0].count);
 
                 // Check if the current user has liked this comment
                 const likeQuery = `
                     SELECT c.user_id, l.comment_id FROM likes l
-                    INNER JOIN 
-                        comics_comment c ON l.comment_id = c.comment_id
-                    WHERE  l.user_id = $2 AND l.comment_id = $1;
-                `
-                const likeResult = await pool.query(likeQuery, [
-                    comment.comment_id,
-                    req.cookies.userId,
-                ])
-                comment.liked_by_me = likeResult.rows.length > 0
+                    INNER JOIN comics_comment c ON l.comment_id = c.comment_id
+                    WHERE l.user_id = $2 AND l.comment_id = $1;
+                `;
+                const likeResult = await pool.query(likeQuery, [comment.comment_id, req.cookies.userId]);
+                comment.liked_by_me = likeResult.rows.length > 0;
             }
 
-            thread.comments = comments
+            thread.comments = comments;
         }
 
-        res.json(threads)
+        res.json({
+            threads,
+            totalCount,
+            totalPages,
+            currentPage: page,
+        });
     } catch (error) {
-        console.error("Error fetching threads:", error)
-        res.status(500).send({ error: "Internal server error" })
+        console.error("Error fetching threads:", error);
+        res.status(500).send({ error: "Internal server error" });
     }
 }
 
