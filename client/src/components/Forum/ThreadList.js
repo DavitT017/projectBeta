@@ -1,6 +1,6 @@
 import React from "react"
 import { createThread, getThreads } from "../../services/threads"
-import { NavLink } from "react-router-dom"
+import { NavLink, useNavigate } from "react-router-dom"
 import { useAsync, useAsyncFn } from "../../hooks/useAsync"
 import Chat from "../../assets/Chat.png"
 import Bug from "../../assets/Bug.png"
@@ -10,6 +10,8 @@ import ThreadForm from "./ThreadForm"
 import { handleRequestError } from "../../context/ThreadContext"
 
 export const ThreadList = () => {
+    const navigate = useNavigate()
+
     const { loading, error, value: threads } = useAsync(getThreads)
 
     const {
@@ -23,9 +25,11 @@ export const ThreadList = () => {
     if (!threads) return null
 
     function onThreadCreate({ title, description, thread_type }) {
-        return createThreadFn({ title, description, thread_type }).catch(
-            handleRequestError
-        )
+        return createThreadFn({ title, description, thread_type })
+            .then((response) => {
+                navigate(`/threads/${response.thread_id}`)
+            })
+            .catch(handleRequestError)
     }
 
     const checkThreadType = (type) => {

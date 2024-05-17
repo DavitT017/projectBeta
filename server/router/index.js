@@ -58,8 +58,16 @@ router.post(
 router.get("/threads", threadController.getAllThreadsWithComments)
 router.get("/threads/:thread_id", threadController.getThreadWithComments)
 router.post("/threads", threadController.createThread)
-router.put("/threads/:thread_id", threadController.updateThread)
-router.delete("/threads/:thread_id", threadController.deleteThread)
+router.put(
+    "/threads/:thread_id",
+    roleMiddleware(["ADMIN", "MODERATOR"]),
+    threadController.updateThread
+)
+router.delete(
+    "/threads/:thread_id",
+    roleMiddleware(["ADMIN", "MODERATOR"]),
+    threadController.deleteThread
+)
 
 //Thread Comments
 router.post(
