@@ -163,6 +163,10 @@ async function getAllThreadsWithComments(req, res) {
 
 // Function to get a thread by ID with comments
 async function getThreadWithComments(req, res) {
+    const page = parseInt(req.query.page) || 1; // Default to page 1 if not provided
+    const limit = parseInt(req.query.limit) || 10; // Default to 10 items per page if not provided
+    const offset = (page - 1) * limit;
+
     try {
         const threadQuery = `
             SELECT thread_id, title, description, user_id, created_at, comment_count, thread_type
@@ -178,16 +182,22 @@ async function getThreadWithComments(req, res) {
             return res.status(404).send({ error: "Thread not found" })
         }
 
+        // Fetch total count of comments for pagination
+        const countQuery = 'SELECT COUNT(*) FROM "comics_comment" WHERE thread_id = $1 AND parent_type = $2 AND parent_id IS NULL';
+        const countResult = await pool.query(countQuery, [req.params.thread_id, "thread"]);
+        const totalCount = parseInt(countResult.rows[0].count);
+        const totalPages = Math.ceil(totalCount / limit);
+
         const commentsQuery = `
             SELECT c.comment_id, c.messages, c.parent_id, c.user_id, c.created_at, c.like_count
             FROM "comics_comment" c
-            WHERE c.thread_id = $1 AND c.parent_type = 'thread'
-            ORDER BY c.like_count DESC;
-        `
-        const commentsResult = await pool.query(commentsQuery, [
-            req.params.thread_id,
-        ])
-        const comments = commentsResult.rows
+            WHERE c.thread_id = $1 AND c.parent_type = 'thread' AND c.parent_id IS NULL
+            ORDER BY c.like_count DESC
+            LIMIT $2 OFFSET $3;
+        `;
+        const commentsValues = [req.params.thread_id, limit, offset];
+        const commentsResult = await pool.query(commentsQuery, commentsValues);
+        const comments = commentsResult.rows;
 
         for (let comment of comments) {
             const userQuery = `
@@ -221,7 +231,12 @@ async function getThreadWithComments(req, res) {
 
         thread.comments = comments
 
-        res.json(thread)
+        res.json({
+            thread,
+            totalCount,
+            totalPages,
+            currentPage: page,
+        });
     } catch (error) {
         console.error("Error fetching thread:", error)
         res.status(500).send({ error: "Internal server error" })
